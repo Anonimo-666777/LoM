@@ -19,7 +19,7 @@ local Window = Library:CreateWindow("Title")
 
 ## ⏺Open/Close Window
 
-```
+```lua
 Library:CreateToggleButton("rbxassetid://YOUR-ID-HERE")
 ```
 
