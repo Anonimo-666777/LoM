@@ -45,6 +45,61 @@ function Library:CreateWindow(title)
     mainFrame.BackgroundColor3 = Theme.Main
     mainFrame.BorderSizePixel = 0
 
+function Library:CreateToggleButton(imageId)
+    local toggleGui = Instance.new("ScreenGui")
+    toggleGui.Name = "LibraryToggleButton"
+    toggleGui.ResetOnSpawn = false
+    toggleGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    local button = Instance.new("ImageButton")
+    button.Parent = toggleGui
+    button.Size = UDim2.new(0, 50, 0, 50)
+    button.Position = UDim2.new(0, 20, 0.5, -25)
+    button.BackgroundColor3 = Theme.Main
+    button.Image = imageId or ""
+    button.AutoButtonColor = false
+    button.BorderSizePixel = 0
+
+    Instance.new("UICorner", button).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", button).Color = Theme.Accent
+
+    -- Abrir / Fechar Window
+    local opened = true
+    button.MouseButton1Click:Connect(function()
+        opened = not opened
+        mainFrame.Visible = opened
+    end)
+
+    -- Drag
+    local dragging, dragStart, startPos
+
+    button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = button.Position
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            button.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+end
+
     -- Constraints para não quebrar em telas muito pequenas ou grandes
     local sizeConstraint = Instance.new("UISizeConstraint", mainFrame)
     sizeConstraint.MinSize = Vector2.new(320, 280)
