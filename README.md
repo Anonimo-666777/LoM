@@ -24,3 +24,11 @@ MainTab:AddButton("name", function()
     print("teste de função")
 end)
 ```
+
+## toggle
+
+```lua
+MainTab:AddToggle("Name", false, function(state)
+    print("Toggle:", state)
+end)
+```
