@@ -52,6 +52,6 @@ Library:AddNotification({
     Title = "Title",
     Description = "Description",
     Time = 5,
-    Icon = "rbxassetid://YOUR-ID-HERE" -- Exemplo de ícone de check
+    Icon = "rbxassetid://YOUR-ID-HERE"
 })
 ```
