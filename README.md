@@ -17,7 +17,7 @@ local Library = loadstring(game:HttpGet(
 local Window = Library:CreateWindow("Title")
 ```
 
-## button
+## Button
 
 ```lua
 MainTab:AddButton("name", function()
@@ -25,7 +25,7 @@ MainTab:AddButton("name", function()
 end)
 ```
 
-## toggle
+## Toggle
 
 ```lua
 MainTab:AddToggle("Name", false, function(state)
@@ -33,7 +33,7 @@ MainTab:AddToggle("Name", false, function(state)
 end)
 ```
 
-## tag
+## Tab
 
 ```lua
 local MainTab = Window:AddTab("Main")
