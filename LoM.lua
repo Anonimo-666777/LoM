@@ -1,4 +1,4 @@
--- Library of Mysterious v0.2
+-- Library of Mysterious v0.3 Stable
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
