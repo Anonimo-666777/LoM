@@ -16,3 +16,11 @@ local Library = loadstring(game:HttpGet(
 ```lua
 local Window = Library:CreateWindow("Title")
 ```
+
+## button
+
+```lua
+MainTab:AddButton("name", function()
+    print("teste de função")
+end)
+```
