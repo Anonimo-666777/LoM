@@ -14,5 +14,5 @@ local Library = loadstring(game:HttpGet(
 ## 🖼 window
 
 ```lua
-local Window = Library:CreateWindow("Library of Mysterious")
+local Window = Library:CreateWindow("Title")
 ```
