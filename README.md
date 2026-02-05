@@ -1,6 +1,6 @@
 # Library of Mysterious
 
-Simple Roblox UI Library made for learning and testing.
+Simple Roblox UI Library made By davidgames3d. 
 
 ---
 
