@@ -44,3 +44,14 @@ MainTab:AddToggle("Name", false, function(state)
     print("Toggle:", state)
 end)
 ```
+
+## 🔔Notification
+
+```lua
+Library:AddNotification({
+    Title = "Title",
+    Description = "Description",
+    Time = 5,
+    Icon = "rbxassetid://YOUR-ID-HERE" -- Exemplo de ícone de check
+})
+```
