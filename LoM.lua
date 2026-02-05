@@ -1,4 +1,4 @@
--- Library of Mysterious v0.3 Stable
+-- Library of Mysterious v0.4
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -24,6 +24,97 @@ local Theme = {
 -- Função auxiliar para animações
 local function Tween(obj, info, goal)
     return TweenService:Create(obj, TweenInfo.new(info, Enum.EasingStyle.Quad), goal):Play()
+end
+
+local CoreGui = game:GetService("CoreGui") -- Ou PlayerGui
+local TweenService = game:GetService("TweenService")
+
+-- Criando o "suporte" das notificações no canto da tela
+local ScreenNotif = Instance.new("ScreenGui")
+ScreenNotif.Name = "MyLibNotifications"
+ScreenNotif.Parent = CoreGui
+
+local NotifHolder = Instance.new("Frame")
+NotifHolder.Name = "NotifHolder"
+NotifHolder.Parent = ScreenNotif
+NotifHolder.Size = UDim2.new(0, 300, 1, 0)
+NotifHolder.Position = UDim2.new(1, -310, 0, 10) -- Canto direito
+NotifHolder.BackgroundTransparency = 1
+
+-- O segredo: UIListLayout faz elas não ficarem uma em cima da outra
+local Layout = Instance.new("UIListLayout")
+Layout.Parent = NotifHolder
+Layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+Layout.Padding = UDim.new(0, 5)
+
+function Library:AddNotification(config)
+    local Titulo = config.Title or "Aviso"
+    local Desc = config.Description or ""
+    local Tempo = config.Time or 5
+    local Icone = config.Icon or "rbxassetid://0"
+    
+    -- Criando o Frame da Notificação
+    local NotifFrame = Instance.new("Frame")
+    NotifFrame.Size = UDim2.new(1, 0, 0, 80)
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    NotifFrame.BorderSizePixel = 0
+    NotifFrame.Parent = NotifHolder
+    NotifFrame.ClipsDescendants = true
+    NotifFrame.Transparency = 1 -- Começa invisível para o Tween
+    
+    -- Arredondar cantos
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.Parent = NotifFrame
+
+    -- Título
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Text = Titulo
+    TitleLabel.Size = UDim2.new(1, -40, 0, 30)
+    TitleLabel.Position = UDim2.new(0, 40, 0, 5)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = NotifFrame
+
+    -- Descrição
+    local DescLabel = Instance.new("TextLabel")
+    DescLabel.Text = Desc
+    DescLabel.Size = UDim2.new(1, -45, 0, 40)
+    DescLabel.Position = UDim2.new(0, 40, 0, 30)
+    DescLabel.BackgroundTransparency = 1
+    DescLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    DescLabel.TextWrapped = true
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DescLabel.TextYAlignment = Enum.TextYAlignment.Top
+    DescLabel.Parent = NotifFrame
+
+    -- Ícone (se houver)
+    local IconImg = Instance.new("ImageLabel")
+    IconImg.Image = Icone
+    IconImg.Size = UDim2.new(0, 25, 0, 25)
+    IconImg.Position = UDim2.new(0, 7, 0, 7)
+    IconImg.BackgroundTransparency = 1
+    IconImg.Parent = NotifFrame
+
+    -- Som (Opcional)
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = "rbxassetid://4590662766" -- Som de notificação padrão
+    Sound.Parent = NotifFrame
+    Sound:Play()
+
+    -- Animação de Entrada
+    TweenService:Create(NotifFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+    
+    -- Timer para Sumir
+    task.delay(Tempo, function()
+        local TweenOut = TweenService:Create(NotifFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
+        TweenOut:Play()
+        TweenOut.Completed:Connect(function()
+            NotifFrame:Destroy()
+        end)
+    end)
 end
 
 function Library:CreateWindow(title)
