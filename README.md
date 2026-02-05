@@ -32,3 +32,9 @@ MainTab:AddToggle("Name", false, function(state)
     print("Toggle:", state)
 end)
 ```
+
+## tag
+
+```lua
+local MainTab = Window:AddTab("Main")
+```
