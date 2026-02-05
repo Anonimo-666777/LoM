@@ -17,6 +17,12 @@ local Library = loadstring(game:HttpGet(
 local Window = Library:CreateWindow("Title")
 ```
 
+## 📂Tab
+
+```lua
+local MainTab = Window:AddTab("Main")
+```
+
 ## 🔘Button
 
 ```lua
@@ -31,10 +37,4 @@ end)
 MainTab:AddToggle("Name", false, function(state)
     print("Toggle:", state)
 end)
-```
-
-## 📂Tab
-
-```lua
-local MainTab = Window:AddTab("Main")
 ```
