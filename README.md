@@ -17,6 +17,12 @@ local Library = loadstring(game:HttpGet(
 local Window = Library:CreateWindow("Title")
 ```
 
+## ⏺Open/Close Window
+
+```
+Library:CreateToggleButton("rbxassetid://YOUR-ID-HERE")
+```
+
 ## 📂Tab
 
 ```lua
