@@ -212,6 +212,32 @@ tabContainer.BackgroundTransparency = 1
             end)
         end
 
+-- BUTTON
+function Tab:AddButton(text, callback)
+    local button = Instance.new("TextButton")
+    button.Parent = container
+    button.Size = UDim2.new(1, 0, 0, 35)
+    button.BackgroundColor3 = Theme.Button
+    button.AutoButtonColor = false
+    button.Text = text
+    button.TextColor3 = Theme.Text
+    button.Font = Enum.Font.GothamMedium
+    button.TextSize = 13
+
+    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+    button.MouseButton1Click:Connect(function()
+        Tween(button, 0.1, {BackgroundColor3 = Theme.ButtonHover})
+        task.delay(0.1, function()
+            Tween(button, 0.1, {BackgroundColor3 = Theme.Button})
+        end)
+
+        if callback then
+            callback()
+        end
+    end)
+end
+
         -- SLIDER
         function Tab:AddSlider(text, min, max, default, callback)
             local sliderFrame = Instance.new("Frame")
