@@ -11,4 +11,4 @@ local Library = loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/Anonimo-666777/LoM/main/LoM.lua"
 ))()
 
----
+## window
