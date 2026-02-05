@@ -1,5 +1,5 @@
 -- Library of Mysterious v0.2
--- Desenvolvido por David | Otimizado por Gemini
+-- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -73,20 +73,23 @@ function Library:CreateWindow(title)
     titleLabel.TextSize = 14
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Container de Conteúdo
-    local container = Instance.new("ScrollingFrame")
-    container.Name = "Container"
-    container.Parent = mainFrame
-    container.Position = UDim2.new(0, 10, 0, 40)
-    container.Size = UDim2.new(1, -20, 1, -50)
-    container.BackgroundTransparency = 1
-    container.ScrollBarThickness = 2
-    container.ScrollBarImageColor3 = Theme.Accent
-    container.CanvasSize = UDim2.new(0, 0, 0, 0)
-    container.AutomaticCanvasSize = Enum.AutomaticSize.Y
+-- Barra de Tabs
+local tabBar = Instance.new("Frame")
+tabBar.Parent = mainFrame
+tabBar.Position = UDim2.new(0, 10, 0, 40)
+tabBar.Size = UDim2.new(1, -20, 0, 32)
+tabBar.BackgroundTransparency = 1
 
-    local layout = Instance.new("UIListLayout", container)
-    layout.Padding = UDim.new(0, 8)
+local tabLayout = Instance.new("UIListLayout", tabBar)
+tabLayout.FillDirection = Enum.FillDirection.Horizontal
+tabLayout.Padding = UDim.new(0, 6)
+
+-- Container geral das tabs
+local tabContainer = Instance.new("Frame")
+tabContainer.Parent = mainFrame
+tabContainer.Position = UDim2.new(0, 10, 0, 80)
+tabContainer.Size = UDim2.new(1, -20, 1, -90)
+tabContainer.BackgroundTransparency = 1
 
     -- Lógica de Arrastar
     local dragging, dragInput, dragStart, startPos
@@ -107,37 +110,62 @@ function Library:CreateWindow(title)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
 
-    function Window:AddTab(name)
-        local Tab = {}
-
         -- BOTÃO
-        function Tab:AddButton(text, callback)
-            local btnFrame = Instance.new("TextButton")
-            btnFrame.Parent = container
-            btnFrame.Size = UDim2.new(1, 0, 0, 32)
-            btnFrame.BackgroundColor3 = Theme.Button
-            btnFrame.AutoButtonColor = false
-            btnFrame.Text = ""
-            Instance.new("UICorner", btnFrame).CornerRadius = UDim.new(0, 6)
+        function Window:AddTab(name)
+    local Tab = {}
 
-            local btnLabel = Instance.new("TextLabel")
-            btnLabel.Parent = btnFrame
-            btnLabel.Size = UDim2.new(1, 0, 1, 0)
-            btnLabel.BackgroundTransparency = 1
-            btnLabel.Text = text
-            btnLabel.TextColor3 = Theme.TextDark
-            btnLabel.Font = Enum.Font.GothamMedium
-            btnLabel.TextSize = 13
+    -- Botão da Tab
+    local tabButton = Instance.new("TextButton")
+    tabButton.Parent = tabBar
+    tabButton.Size = UDim2.new(0, 100, 1, 0)
+    tabButton.BackgroundColor3 = Theme.Button
+    tabButton.Text = name
+    tabButton.TextColor3 = Theme.TextDark
+    tabButton.Font = Enum.Font.GothamMedium
+    tabButton.TextSize = 13
+    tabButton.AutoButtonColor = false
+    Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 6)
 
-            btnFrame.MouseEnter:Connect(function() Tween(btnFrame, 0.2, {BackgroundColor3 = Theme.ButtonHover}) end)
-            btnFrame.MouseLeave:Connect(function() Tween(btnFrame, 0.2, {BackgroundColor3 = Theme.Button}) end)
-            btnFrame.MouseButton1Click:Connect(function()
-                btnFrame.BackgroundColor3 = Theme.Accent
-                task.wait(0.1)
-                Tween(btnFrame, 0.2, {BackgroundColor3 = Theme.ButtonHover})
-                if callback then callback() end
-            end)
+    -- Frame da Tab
+    local container = Instance.new("ScrollingFrame")
+    container.Parent = tabContainer
+    container.Size = UDim2.new(1, 0, 1, 0)
+    container.CanvasSize = UDim2.new(0, 0, 0, 0)
+    container.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    container.ScrollBarThickness = 2
+    container.ScrollBarImageColor3 = Theme.Accent
+    container.Visible = false
+    container.BackgroundTransparency = 1
+
+    local layout = Instance.new("UIListLayout", container)
+    layout.Padding = UDim.new(0, 8)
+
+    -- Função de ativar tab
+    local function SelectTab()
+        for _, t in pairs(tabContainer:GetChildren()) do
+            if t:IsA("ScrollingFrame") then
+                t.Visible = false
+            end
         end
+        container.Visible = true
+
+        for _, b in pairs(tabBar:GetChildren()) do
+            if b:IsA("TextButton") then
+                Tween(b, 0.2, {BackgroundColor3 = Theme.Button})
+                b.TextColor3 = Theme.TextDark
+            end
+        end
+
+        Tween(tabButton, 0.2, {BackgroundColor3 = Theme.Accent})
+        tabButton.TextColor3 = Theme.Text
+    end
+
+    tabButton.MouseButton1Click:Connect(SelectTab)
+
+    -- Primeira tab abre sozinha
+    if #tabContainer:GetChildren() == 1 then
+        SelectTab()
+    end
 
         -- TOGGLE
         function Tab:AddToggle(text, default, callback)
