@@ -10,8 +10,7 @@ local Mouse = LocalPlayer:GetMouse()
 local Library = {}
 Library.__index = Library
 
--- Tabela de Cores (Centralizada)
-local Theme = {
+-- Nova Tabela de Themes = {
     Main = Color3.fromRGB(20, 20, 20),
     Secondary = Color3.fromRGB(30, 30, 30),
     Accent = Color3.fromRGB(0, 162, 255),
@@ -20,6 +19,31 @@ local Theme = {
     Button = Color3.fromRGB(45, 45, 45),
     ButtonHover = Color3.fromRGB(55, 55, 55)
 }
+
+-- Lista para guardar os objetos que precisam mudar de cor
+local ThemeObjects = {
+    Accent = {}, -- Sliders, Toggles ativos, Stroke do botão de fechar
+    Text = {},
+    Buttons = {}
+}
+
+function Library:SetThemeColor(color)
+    Theme.Accent = color
+    -- Atualiza todos os objetos registrados como "Accent"
+    for _, obj in pairs(ThemeObjects.Accent) do
+        if obj:IsA("Frame") or obj:IsA("TextButton") or obj:IsA("ScrollingFrame") then
+            if obj.Name == "SliderFill" or obj.Name == "Dot" or obj.Name == "SwitchBg" then
+                 Tween(obj, 0.3, {BackgroundColor3 = color})
+            end
+        elseif obj:IsA("UIStroke") then
+            Tween(obj, 0.3, {Color = color})
+        elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
+             if obj.Name == "ValueLabel" or obj.Name == "KeyLabel" then
+                Tween(obj, 0.3, {TextColor3 = color})
+             end
+        end
+    end
+end
 
 -- Variável Global para o ToggleButton funcionar
 local globalMainFrame = nil
@@ -167,6 +191,7 @@ function Library:CreateWindow(title)
     local stroke = Instance.new("UIStroke", mainFrame)
     stroke.Color = Theme.Secondary
     stroke.Thickness = 1.5
+    table.insert(ThemeObjects.Accent, stroke)
 
     local sizeConstraint = Instance.new("UISizeConstraint", mainFrame)
     sizeConstraint.MinSize = Vector2.new(320, 280)
@@ -188,6 +213,12 @@ function Library:CreateWindow(title)
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextSize = 14
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local ConfigTab = Window:AddTab("Config")
+
+ConfigTab:AddColorPicker("Cor do Tema", Theme.Accent, function(novaCor)
+    Library:SetThemeColor(novaCor)
+end)
 
     -- Barra de Tabs (Com Scroll Lateral)
     local tabBar = Instance.new("ScrollingFrame")
@@ -246,6 +277,36 @@ function Library:CreateWindow(title)
         tabButton.AutoButtonColor = false
         Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 6)
 
+function Tab:AddSection(text)
+    local sectionFrame = Instance.new("Frame")
+    sectionFrame.Parent = container
+    sectionFrame.Size = UDim2.new(1, 0, 0, 25)
+    sectionFrame.BackgroundTransparency = 1
+
+    local sectionLabel = Instance.new("TextLabel")
+    sectionLabel.Parent = sectionFrame
+    sectionLabel.Size = UDim2.new(1, 0, 1, 0)
+    sectionLabel.Position = UDim2.new(0, 5, 0, 0)
+    sectionLabel.BackgroundTransparency = 1
+    sectionLabel.Text = text:upper() -- Deixa em CAPS para destacar
+    sectionLabel.TextColor3 = Theme.Accent -- Usa a cor do tema!
+    sectionLabel.Font = Enum.Font.GothamBold
+    sectionLabel.TextSize = 11
+    sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+    
+    -- Linha decorativa
+    local line = Instance.new("Frame")
+    line.Parent = sectionFrame
+    line.Size = UDim2.new(1, - (sectionLabel.TextBounds.X + 15), 0, 1)
+    line.Position = UDim2.new(0, sectionLabel.TextBounds.X + 10, 0.5, 0)
+    line.BackgroundColor3 = Theme.Secondary
+    line.BorderSizePixel = 0
+    
+    -- Registrar o label para mudar de cor com o tema também!
+    sectionLabel.Name = "ValueLabel"
+    table.insert(ThemeObjects.Accent, sectionLabel)
+end
+
         local container = Instance.new("ScrollingFrame")
         container.Parent = tabContainer
         container.Size = UDim2.new(1, 0, 1, 0)
@@ -289,7 +350,9 @@ end)
             toggleFrame.AutoButtonColor = false
             toggleFrame.Text = ""
             Instance.new("UICorner", toggleFrame).CornerRadius = UDim.new(0, 6)
-
+            switchBg.Name = "SwitchBg"
+table.insert(ThemeObjects.Accent, switchBg)
+            
             local toggleLabel = Instance.new("TextLabel")
             toggleLabel.Parent = toggleFrame
             toggleLabel.Size = UDim2.new(1, -50, 1, 0)
@@ -391,6 +454,10 @@ end)
             sliderFill.Size = UDim2.new(0, 0, 1, 0)
             sliderFill.BackgroundColor3 = Theme.Accent
             Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(0, 2)
+
+             sliderFill.Name = "SliderFill"
+table.insert(ThemeObjects.Accent, sliderFill)
+table.insert(ThemeObjects.Accent, valueLabel) -- O número do slider também muda
 
             local handle = Instance.new("Frame")
             handle.Parent = sliderBar
@@ -718,6 +785,8 @@ function Tab:AddKeybind(text, default, callback)
             Keybind.Value = input.KeyCode
             Keybind.Binding = false
             keyLabel.Text = Keybind.Value.Name
+            keyLabel.Name = "KeyLabel"
+            table.insert(ThemeObjects.Accent, keyLabel)
             keyLabel.TextColor3 = Theme.Accent
             if callback then callback(Keybind.Value) end
         end
