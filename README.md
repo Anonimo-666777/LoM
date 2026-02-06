@@ -74,7 +74,7 @@ end)
 ```lua
 MinhaTab:AddColorPicker("Name", Color3.fromRGB(0, 162, 255), function(corSelecionada)
     print("A cor mudou para:", corSelecionada)
-     game.Workspace.baseplate.Color = corSelecionada
+game.Workspace.Baseplate.BrickColor = BrickColor.new(:", corSelecionada")
 end)
 ```
 
