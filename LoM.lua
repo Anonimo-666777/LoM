@@ -1,4 +1,4 @@
--- Library of Mysterious v0.4
+-- Library of Mysterious v0.5 alpha
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -52,7 +52,7 @@ function Library:AddNotification(config)
     local Desc = config.Description or ""
     local Tempo = config.Time or 5
     local Icone = config.Icon or "rbxassetid://0"
-    
+
     -- Criando o Frame da Notificação
     local NotifFrame = Instance.new("Frame")
     NotifFrame.Size = UDim2.new(1, 0, 0, 80)
@@ -61,7 +61,7 @@ function Library:AddNotification(config)
     NotifFrame.Parent = NotifHolder
     NotifFrame.ClipsDescendants = true
     NotifFrame.Transparency = 1 -- Começa invisível para o Tween
-    
+
     -- Arredondar cantos
     local Corner = Instance.new("UICorner")
     Corner.CornerRadius = UDim.new(0, 8)
@@ -100,13 +100,13 @@ function Library:AddNotification(config)
 
     -- Som (Opcional)
     local Sound = Instance.new("Sound")
-    Sound.SoundId = "rbxassetid://4590662766" -- Som de notificação padrão
+    Sound.SoundId = "rbxassetid://93152995777202" -- Som de notificação padrão
     Sound.Parent = NotifFrame
     Sound:Play()
 
     -- Animação de Entrada
     TweenService:Create(NotifFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-    
+
     -- Timer para Sumir
     task.delay(Tempo, function()
         local TweenOut = TweenService:Create(NotifFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
@@ -384,77 +384,162 @@ function Tab:AddButton(text, callback)
     end)
 end
 
-        -- SLIDER
-        function Tab:AddSlider(text, min, max, default, callback)
-            local sliderFrame = Instance.new("Frame")
-            sliderFrame.Parent = container
-            sliderFrame.Size = UDim2.new(1, 0, 0, 45)
-            sliderFrame.BackgroundColor3 = Theme.Button
-            Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 6)
-
-            local sliderLabel = Instance.new("TextLabel")
-            sliderLabel.Parent = sliderFrame
-            sliderLabel.Size = UDim2.new(1, -20, 0, 20)
-            sliderLabel.Position = UDim2.new(0, 12, 0, 5)
-            sliderLabel.BackgroundTransparency = 1
-            sliderLabel.Text = text
-            sliderLabel.TextColor3 = Theme.TextDark
-            sliderLabel.Font = Enum.Font.GothamMedium
-            sliderLabel.TextSize = 12
-            sliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-            local valueLabel = Instance.new("TextLabel")
-            valueLabel.Parent = sliderFrame
-            valueLabel.Size = UDim2.new(0, 50, 0, 20)
-            valueLabel.Position = UDim2.new(1, -60, 0, 5)
-            valueLabel.BackgroundTransparency = 1
-            valueLabel.Text = tostring(default or min)
-            valueLabel.TextColor3 = Theme.Accent
-            valueLabel.Font = Enum.Font.GothamBold
-            valueLabel.TextSize = 12
-            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-
-            local sliderBar = Instance.new("Frame")
-            sliderBar.Parent = sliderFrame
-            sliderBar.Size = UDim2.new(1, -24, 0, 4)
-            sliderBar.Position = UDim2.new(0, 12, 0, 32)
-            sliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-            Instance.new("UICorner", sliderBar)
-
-            local sliderFill = Instance.new("Frame")
-            sliderFill.Parent = sliderBar
-            sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-            sliderFill.BackgroundColor3 = Theme.Accent
-            Instance.new("UICorner", sliderFill)
-
-            local draggingSlider = false
-
-            local function UpdateSlider()
-                local percent = math.clamp((Mouse.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-                local value = math.floor(min + (max - min) * percent)
-
-                valueLabel.Text = tostring(value)
-                Tween(sliderFill, 0.1, {Size = UDim2.new(percent, 0, 1, 0)})
-                if callback then callback(value) end
-            end
-
-            sliderFrame.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    draggingSlider = true
-                    UpdateSlider()
-                end
-            end)
-
-            UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then draggingSlider = false end
-            end)
-
-            UserInputService.InputChanged:Connect(function(input)
-                if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
-                    UpdateSlider()
-                end
-            end)
+-- SLIDER (ADICIONAR AQUI) 👇
+function Tab:AddSlider(config)
+    local Title = config.Title or "Slider"
+    local Description = config.Description or ""
+    local Default = config.Default or 0
+    local Min = config.Min or 0
+    local Max = config.Max or 100
+    local Callback = config.Callback or function() end
+    
+    local CurrentValue = Default
+    
+    -- Frame principal do slider
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Parent = container
+    sliderFrame.Size = UDim2.new(1, 0, 0, Description ~= "" and 70 or 55)
+    sliderFrame.BackgroundColor3 = Theme.Button
+    sliderFrame.BorderSizePixel = 0
+    
+    Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 6)
+    
+    -- Título
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = sliderFrame
+    titleLabel.Size = UDim2.new(1, -80, 0, 18)
+    titleLabel.Position = UDim2.new(0, 12, 0, 8)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = Title
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Font = Enum.Font.GothamMedium
+    titleLabel.TextSize = 13
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    
+    -- Valor atual (no canto direito)
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Parent = sliderFrame
+    valueLabel.Size = UDim2.new(0, 60, 0, 18)
+    valueLabel.Position = UDim2.new(1, -70, 0, 8)
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Text = tostring(CurrentValue)
+    valueLabel.TextColor3 = Theme.Accent
+    valueLabel.Font = Enum.Font.GothamBold
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    
+    -- Descrição (se houver)
+    local yOffset = 28
+    if Description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Parent = sliderFrame
+        descLabel.Size = UDim2.new(1, -24, 0, 14)
+        descLabel.Position = UDim2.new(0, 12, 0, 26)
+        descLabel.BackgroundTransparency = 1
+        descLabel.Text = Description
+        descLabel.TextColor3 = Theme.TextDark
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 11
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        yOffset = 43
+    end
+    
+    -- Barra do slider (background)
+    local sliderBar = Instance.new("Frame")
+    sliderBar.Parent = sliderFrame
+    sliderBar.Size = UDim2.new(1, -24, 0, 4)
+    sliderBar.Position = UDim2.new(0, 12, 0, yOffset)
+    sliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    sliderBar.BorderSizePixel = 0
+    
+    Instance.new("UICorner", sliderBar).CornerRadius = UDim.new(0, 2)
+    
+    -- Preenchimento (parte colorida)
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Parent = sliderBar
+    sliderFill.Size = UDim2.new(0, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Theme.Accent
+    sliderFill.BorderSizePixel = 0
+    
+    Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(0, 2)
+    
+    -- Bolinha (handle)
+    local handle = Instance.new("Frame")
+    handle.Parent = sliderBar
+    handle.Size = UDim2.new(0, 12, 0, 12)
+    handle.Position = UDim2.new(0, 0, 0.5, -6)
+    handle.AnchorPoint = Vector2.new(0.5, 0.5)
+    handle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    handle.BorderSizePixel = 0
+    
+    Instance.new("UICorner", handle).CornerRadius = UDim.new(1, 0)
+    
+    -- Objeto retornado
+    local SliderObject = {}
+    
+    -- Função para atualizar o valor
+    function SliderObject:SetValue(newValue)
+        CurrentValue = math.clamp(newValue, Min, Max)
+        
+        local percentage = (CurrentValue - Min) / (Max - Min)
+        
+        -- Atualizar visual
+        Tween(sliderFill, 0.15, {Size = UDim2.new(percentage, 0, 1, 0)})
+        Tween(handle, 0.15, {Position = UDim2.new(percentage, 0, 0.5, -6)})
+        valueLabel.Text = tostring(math.floor(CurrentValue + 0.5))
+        
+        -- Callback
+        if Callback then
+            Callback(CurrentValue)
         end
+        
+        return CurrentValue
+    end
+    
+    -- Função para pegar valor
+    function SliderObject:GetValue()
+        return CurrentValue
+    end
+    
+    -- Lógica de arrastar
+    local dragging = false
+    
+    local function updateFromInput(input)
+        local barPos = sliderBar.AbsolutePosition.X
+        local barSize = sliderBar.AbsoluteSize.X
+        local mousePos = input.Position.X
+        
+        local relativePos = math.clamp(mousePos - barPos, 0, barSize)
+        local percentage = relativePos / barSize
+        
+        local newValue = Min + (percentage * (Max - Min))
+        SliderObject:SetValue(newValue)
+    end
+    
+    sliderBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            updateFromInput(input)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            updateFromInput(input)
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    -- Setar valor inicial
+    SliderObject:SetValue(Default)
+    
+    return SliderObject
+end
 
         return Tab
     end
