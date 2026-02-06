@@ -4,31 +4,31 @@ Simple Roblox UI Library made By davidgames3d.
 
 ---
 
-## 📦 Load
+## 📦 Load✅
 
 ```lua
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anonimo-666777/LoM/main/LoM.lua"))()
 ```
 
-## 🖼 window
+## 🖼 window✅
 
 ```lua
 local Window = Library:CreateWindow("Title")
 ```
 
-## ⏺Open/Close Window
+## ⏺Open/Close Window❓
 
 ```lua
 Library:CreateToggleButton("rbxassetid://YOUR-ID-HERE")
 ```
 
-## 📂Tab
+## 📂Tab✅
 
 ```lua
 local MainTab = Window:AddTab("Main")
 ```
 
-## 🔘Button
+## 🔘Button✅
 
 ```lua
 MainTab:AddButton("name", function()
@@ -36,7 +36,7 @@ MainTab:AddButton("name", function()
 end)
 ```
 
-## 🎛️Toggle
+## 🎛️Toggle❓
 
 ```lua
 Tab1:AddToggle("Name", false, function()
@@ -44,7 +44,7 @@ Tab1:AddToggle("Name", false, function()
 end)
 ```
 
-## 🎚Slider
+## 🎚Slider❌
 
 ```lua
 local Slider = Tab1:AddSlider({
@@ -60,7 +60,7 @@ local Slider = Tab1:AddSlider({
 })
 ```
 
-## 📃DropDown
+## 📃DropDown❌
 
 ```lua
 Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(escolha)
@@ -68,7 +68,7 @@ Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(es
 end)
 ```
 
-## 🎨Color Picker 
+## 🎨Color Picker ❌
 
 ```lua
 MinhaTab:AddColorPicker("Name", Color3.fromRGB(0, 162, 255), function(corSelecionada)
@@ -83,7 +83,7 @@ end)
 Tab:AddSection("Name")
 ```
 
-## 🔜KeyBind
+## 🔜KeyBind❌
 
 ```lua
 Tab:AddKeybind("Name", Enum.KeyCode.G, function(teclaPressionada)
@@ -96,7 +96,7 @@ Tab:AddKeybind("Name", Enum.KeyCode.G, function(teclaPressionada)
 end)
 ```
 
-## 🔔Notification
+## 🔔Notification❌
 
 ```lua
 Library:AddNotification({
