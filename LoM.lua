@@ -385,27 +385,25 @@ function Tab:AddButton(text, callback)
     end)
 end
 
--- SLIDER (ADICIONAR AQUI) 
 function Tab:AddSlider(config)
     local Title = config.Title or "Slider"
     local Description = config.Description or ""
     local Default = config.Default or 0
     local Min = config.Min or 0
     local Max = config.Max or 100
+    local Step = config.Step or 1
     local Callback = config.Callback or function() end
 
     local CurrentValue = Default
 
-    -- Frame principal do slider
+    -- Frame principal
     local sliderFrame = Instance.new("Frame")
     sliderFrame.Parent = container
     sliderFrame.Size = UDim2.new(1, 0, 0, Description ~= "" and 70 or 55)
     sliderFrame.BackgroundColor3 = Theme.Button
-    sliderFrame.BorderSizePixel = 0
-
     Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 6)
 
-    -- Título
+    -- Labels (Título e Valor)
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Parent = sliderFrame
     titleLabel.Size = UDim2.new(1, -80, 0, 18)
@@ -417,7 +415,6 @@ function Tab:AddSlider(config)
     titleLabel.TextSize = 13
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Valor atual (no canto direito)
     local valueLabel = Instance.new("TextLabel")
     valueLabel.Parent = sliderFrame
     valueLabel.Size = UDim2.new(0, 60, 0, 18)
@@ -429,138 +426,76 @@ function Tab:AddSlider(config)
     valueLabel.TextSize = 13
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
 
-    -- Descrição (se houver)
-    local yOffset = 28
-    if Description ~= "" then
-        local descLabel = Instance.new("TextLabel")
-        descLabel.Parent = sliderFrame
-        descLabel.Size = UDim2.new(1, -24, 0, 14)
-        descLabel.Position = UDim2.new(0, 12, 0, 26)
-        descLabel.BackgroundTransparency = 1
-        descLabel.Text = Description
-        descLabel.TextColor3 = Theme.TextDark
-        descLabel.Font = Enum.Font.Gotham
-        descLabel.TextSize = 11
-        descLabel.TextXAlignment = Enum.TextXAlignment.Left
-        yOffset = 43
-    end
-
-    -- Barra do slider (background)
+    -- Barra e Handle
     local sliderBar = Instance.new("Frame")
     sliderBar.Parent = sliderFrame
     sliderBar.Size = UDim2.new(1, -24, 0, 4)
-    sliderBar.Position = UDim2.new(0, 12, 0, yOffset)
+    sliderBar.Position = UDim2.new(0, 12, 0, Description ~= "" and 43 or 28)
     sliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    sliderBar.BorderSizePixel = 0
-
     Instance.new("UICorner", sliderBar).CornerRadius = UDim.new(0, 2)
 
-    -- Preenchimento (parte colorida)
     local sliderFill = Instance.new("Frame")
     sliderFill.Parent = sliderBar
     sliderFill.Size = UDim2.new(0, 0, 1, 0)
     sliderFill.BackgroundColor3 = Theme.Accent
-    sliderFill.BorderSizePixel = 0
-
     Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(0, 2)
 
-    -- Bolinha (handle)
     local handle = Instance.new("Frame")
     handle.Parent = sliderBar
     handle.Size = UDim2.new(0, 12, 0, 12)
-    handle.Position = UDim2.new(0, 0, 0.5, -6)
+    handle.Position = UDim2.new(0, 0, 0.5, 0)
     handle.AnchorPoint = Vector2.new(0.5, 0.5)
     handle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    handle.BorderSizePixel = 0
-
     Instance.new("UICorner", handle).CornerRadius = UDim.new(1, 0)
 
-    -- Objeto retornado
     local SliderObject = {}
 
-    -- Função para atualizar o valor
     function SliderObject:SetValue(newValue)
-        CurrentValue = math.clamp(newValue, Min, Max)
-
+        local snappedValue = math.floor(((newValue - Min) / Step) + 0.5) * Step + Min
+        CurrentValue = math.clamp(snappedValue, Min, Max)
         local percentage = (CurrentValue - Min) / (Max - Min)
 
-        -- Atualizar visual
-        Tween(sliderFill, 0.15, {Size = UDim2.new(percentage, 0, 1, 0)})
-        Tween(handle, 0.15, {Position = UDim2.new(percentage, 0, 0.5, -6)})
-        valueLabel.Text = tostring(math.floor(CurrentValue + 0.5))
+        TweenService:Create(sliderFill, TweenInfo.new(0.1), {Size = UDim2.new(percentage, 0, 1, 0)}):Play()
+        TweenService:Create(handle, TweenInfo.new(0.1), {Position = UDim2.new(percentage, 0, 0.5, 0)}):Play()
+        valueLabel.Text = string.format("%.1f", CurrentValue):gsub("%.0$", "")
 
-        -- Callback
-        if Callback then
-            Callback(CurrentValue)
-        end
-
-        return CurrentValue
+        if Callback then Callback(CurrentValue) end
     end
 
-    -- Função para pegar valor
-    function SliderObject:GetValue()
-        return CurrentValue
-    end
-
-    -- Lógica de arrastar
+    -- Lógica de Input (Onde costuma dar erro de syntax)
     local dragging = false
 
     local function updateFromInput(input)
         local barPos = sliderBar.AbsolutePosition.X
         local barSize = sliderBar.AbsoluteSize.X
         local mousePos = input.Position.X
-
         local relativePos = math.clamp(mousePos - barPos, 0, barSize)
         local percentage = relativePos / barSize
-
-        local newValue = Min + (percentage * (Max - Min))
-        SliderObject:SetValue(newValue)
+        SliderObject:SetValue(Min + (percentage * (Max - Min)))
     end
 
     sliderBar.InputBegan:Connect(function(input)
-        -- Lógica de arrastar (Versão compatível com Mobile)
-local dragging = false
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateFromInput(input)
+        end
+    end)
 
-local function updateFromInput(input)
-    local barPos = sliderBar.AbsolutePosition.X
-    local barSize = sliderBar.AbsoluteSize.X
-    -- Funciona para Mouse e Touch
-    local mousePos = input.Position.X
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateFromInput(input)
+        end
+    end)
 
-    local relativePos = math.clamp(mousePos - barPos, 0, barSize)
-    local percentage = relativePos / barSize
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
 
-    local newValue = Min + (percentage * (Max - Min))
-    SliderObject:SetValue(newValue)
-end
-
--- Detecta quando clica ou encosta o dedo
-sliderBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        updateFromInput(input)
-    end
-end)
-
--- Detecta quando move o mouse ou o dedo
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        updateFromInput(input)
-    end
-end)
-
--- Detecta quando solta
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
-end)
-
-    -- Setar valor inicial
     SliderObject:SetValue(Default)
-
     return SliderObject
-end
+end -- FECHA AddSlider
 
 function Tab:AddDropdown(text, list, callback)
     local Dropdown = {
