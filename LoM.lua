@@ -511,6 +511,138 @@ function Library:CreateWindow(title)
             return Dropdown
         end
 
+        function Tab:AddColorPicker(text, default, callback)
+            local ColorPicker = {
+                Value = default or Color3.fromRGB(255, 255, 255),
+                Open = false
+            }
+
+            local pickerFrame = Instance.new("Frame")
+            pickerFrame.Parent = container
+            pickerFrame.Size = UDim2.new(1, 0, 0, 35)
+            pickerFrame.BackgroundColor3 = Theme.Button
+            pickerFrame.ClipsDescendants = true
+            Instance.new("UICorner", pickerFrame).CornerRadius = UDim.new(0, 6)
+
+            local mainBtn = Instance.new("TextButton")
+            mainBtn.Size = UDim2.new(1, 0, 0, 35)
+            mainBtn.BackgroundTransparency = 1
+            mainBtn.Text = ""
+            mainBtn.Parent = pickerFrame
+
+            local label = Instance.new("TextLabel")
+            label.Parent = mainBtn
+            label.Size = UDim2.new(1, -60, 1, 0)
+            label.Position = UDim2.new(0, 12, 0, 0)
+            label.Text = text
+            label.TextColor3 = Theme.TextDark
+            label.Font = Enum.Font.GothamMedium
+            label.TextSize = 13
+            label.TextXAlignment = Enum.TextXAlignment.Left
+            label.BackgroundTransparency = 1
+
+            local colorDisplay = Instance.new("Frame")
+            colorDisplay.Parent = mainBtn
+            colorDisplay.Size = UDim2.new(0, 24, 0, 16)
+            colorDisplay.Position = UDim2.new(1, -35, 0.5, -8)
+            colorDisplay.BackgroundColor3 = ColorPicker.Value
+            Instance.new("UICorner", colorDisplay).CornerRadius = UDim.new(0, 4)
+            Instance.new("UIStroke", colorDisplay).Color = Color3.fromRGB(80, 80, 80)
+
+            -- Área do Seletor (Aparece ao expandir)
+            local pickerArea = Instance.new("Frame")
+            pickerArea.Parent = pickerFrame
+            pickerArea.Position = UDim2.new(0, 10, 0, 40)
+            pickerArea.Size = UDim2.new(1, -20, 0, 120)
+            pickerArea.BackgroundTransparency = 1
+
+            -- Rainbow Saturation/Value Box
+            local svBox = Instance.new("ImageLabel")
+            svBox.Parent = pickerArea
+            svBox.Size = UDim2.new(1, -30, 1, 0)
+            svBox.Image = "rbxassetid://4155801252" -- Textura de Saturation/Value
+            svBox.BackgroundColor3 = Color3.fromHSV(0, 1, 1) -- Cor base (Matiz)
+
+            local cursor = Instance.new("Frame")
+            cursor.Parent = svBox
+            cursor.Size = UDim2.new(0, 6, 0, 6)
+            cursor.AnchorPoint = Vector2.new(0.5, 0.5)
+            cursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Instance.new("UICorner", cursor).CornerRadius = UDim.new(1, 0)
+            Instance.new("UIStroke", cursor).Thickness = 1
+
+            -- Barra de Matiz (Hue) lateral
+            local hueBar = Instance.new("ImageLabel")
+            hueBar.Parent = pickerArea
+            hueBar.Position = UDim2.new(1, -20, 0, 0)
+            hueBar.Size = UDim2.new(0, 15, 1, 0)
+            hueBar.Image = "rbxassetid://3641079629" -- Barra arco-íris
+
+            local hueCursor = Instance.new("Frame")
+            hueCursor.Parent = hueBar
+            hueCursor.Size = UDim2.new(1, 4, 0, 2)
+            hueCursor.Position = UDim2.new(0.5, 0, 0, 0)
+            hueCursor.AnchorPoint = Vector2.new(0.5, 0)
+            hueCursor.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+            local function updateColor()
+                local h = 1 - (hueCursor.Position.Y.Scale)
+                local s = cursor.Position.X.Scale
+                local v = 1 - cursor.Position.Y.Scale
+                
+                svBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+                ColorPicker.Value = Color3.fromHSV(h, s, v)
+                colorDisplay.BackgroundColor3 = ColorPicker.Value
+                
+                if callback then callback(ColorPicker.Value) end
+            end
+
+            -- Lógica de Input
+            local draggingSV = false
+            svBox.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSV = true
+                end
+            end)
+
+            local draggingHue = false
+            hueBar.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingHue = true
+                end
+            end)
+
+            UserInputService.InputChanged:Connect(function(input)
+                if draggingSV and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    local relativeX = math.clamp((input.Position.X - svBox.AbsolutePosition.X) / svBox.AbsoluteSize.X, 0, 1)
+                    local relativeY = math.clamp((input.Position.Y - svBox.AbsolutePosition.Y) / svBox.AbsoluteSize.Y, 0, 1)
+                    cursor.Position = UDim2.new(relativeX, 0, relativeY, 0)
+                    updateColor()
+                elseif draggingHue and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    local relativeY = math.clamp((input.Position.Y - hueBar.AbsolutePosition.Y) / hueBar.AbsoluteSize.Y, 0, 1)
+                    hueCursor.Position = UDim2.new(0.5, 0, relativeY, 0)
+                    updateColor()
+                end
+            end)
+
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSV = false
+                    draggingHue = false
+                end
+            end)
+
+            -- Abrir/Fechar
+            mainBtn.MouseButton1Click:Connect(function()
+                ColorPicker.Open = not ColorPicker.Open
+                local targetSize = ColorPicker.Open and UDim2.new(1, 0, 0, 170) or UDim2.new(1, 0, 0, 35)
+                TweenService:Create(pickerFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
+                pickerFrame.ZIndex = ColorPicker.Open and 10 or 1
+            end)
+
+            return ColorPicker
+        end
+
         return Tab
     end
     return Window
