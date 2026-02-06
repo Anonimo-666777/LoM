@@ -47,7 +47,7 @@ end)
 
 ## 🔛Slider
 
-```
+```lua
 local Slider = Tab1:AddSlider({
     Title = "título",
     Description = "descrição",
