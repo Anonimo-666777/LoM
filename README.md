@@ -13,7 +13,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anoni
 ## 🖼 window
 
 ```lua
-local Window = Name:CreateWindow("Nome ou título do Hub ou script")
+local Window = Library:CreateWindow("Title")
 ```
 
 ## ⏺Open/Close Window
@@ -25,14 +25,14 @@ Library:CreateToggleButton("rbxassetid://YOUR-ID-HERE")
 ## 📂Tab
 
 ```lua
-local Tab1 = Window:AddTab("1 Tab")
+local MainTab = Window:AddTab("Main")
 ```
 
 ## 🔘Button
 
 ```lua
-Tab1:AddButton("Name", function()
-    print("tire o print e bote sua função")
+MainTab:AddButton("name", function()
+    print("teste de função")
 end)
 ```
 
@@ -99,5 +99,10 @@ end)
 ## 🔔Notification
 
 ```lua
-Lib:Notify("Bem-vindo!", "Aproveite o script, David.", 5)
+Library:AddNotification({
+    Title = "Title",
+    Description = "Description",
+    Time = 5,
+    Icon = "rbxassetid://YOUR-ID-HERE"
+})
 ```
