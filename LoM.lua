@@ -1,4 +1,4 @@
--- Library of Mysterious v0.5 alpha
+-- Library of Mysterious v0.5 alpha 2
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -384,7 +384,7 @@ function Tab:AddButton(text, callback)
     end)
 end
 
--- SLIDER (ADICIONAR AQUI) 👇
+-- SLIDER (ADICIONAR AQUI) 
 function Tab:AddSlider(config)
     local Title = config.Title or "Slider"
     local Description = config.Description or ""
@@ -392,18 +392,18 @@ function Tab:AddSlider(config)
     local Min = config.Min or 0
     local Max = config.Max or 100
     local Callback = config.Callback or function() end
-    
+
     local CurrentValue = Default
-    
+
     -- Frame principal do slider
     local sliderFrame = Instance.new("Frame")
     sliderFrame.Parent = container
     sliderFrame.Size = UDim2.new(1, 0, 0, Description ~= "" and 70 or 55)
     sliderFrame.BackgroundColor3 = Theme.Button
     sliderFrame.BorderSizePixel = 0
-    
+
     Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 6)
-    
+
     -- Título
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Parent = sliderFrame
@@ -415,7 +415,7 @@ function Tab:AddSlider(config)
     titleLabel.Font = Enum.Font.GothamMedium
     titleLabel.TextSize = 13
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    
+
     -- Valor atual (no canto direito)
     local valueLabel = Instance.new("TextLabel")
     valueLabel.Parent = sliderFrame
@@ -427,7 +427,7 @@ function Tab:AddSlider(config)
     valueLabel.Font = Enum.Font.GothamBold
     valueLabel.TextSize = 13
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-    
+
     -- Descrição (se houver)
     local yOffset = 28
     if Description ~= "" then
@@ -443,7 +443,7 @@ function Tab:AddSlider(config)
         descLabel.TextXAlignment = Enum.TextXAlignment.Left
         yOffset = 43
     end
-    
+
     -- Barra do slider (background)
     local sliderBar = Instance.new("Frame")
     sliderBar.Parent = sliderFrame
@@ -451,18 +451,18 @@ function Tab:AddSlider(config)
     sliderBar.Position = UDim2.new(0, 12, 0, yOffset)
     sliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     sliderBar.BorderSizePixel = 0
-    
+
     Instance.new("UICorner", sliderBar).CornerRadius = UDim.new(0, 2)
-    
+
     -- Preenchimento (parte colorida)
     local sliderFill = Instance.new("Frame")
     sliderFill.Parent = sliderBar
     sliderFill.Size = UDim2.new(0, 0, 1, 0)
     sliderFill.BackgroundColor3 = Theme.Accent
     sliderFill.BorderSizePixel = 0
-    
+
     Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(0, 2)
-    
+
     -- Bolinha (handle)
     local handle = Instance.new("Frame")
     handle.Parent = sliderBar
@@ -471,74 +471,190 @@ function Tab:AddSlider(config)
     handle.AnchorPoint = Vector2.new(0.5, 0.5)
     handle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     handle.BorderSizePixel = 0
-    
+
     Instance.new("UICorner", handle).CornerRadius = UDim.new(1, 0)
-    
+
     -- Objeto retornado
     local SliderObject = {}
-    
+
     -- Função para atualizar o valor
     function SliderObject:SetValue(newValue)
         CurrentValue = math.clamp(newValue, Min, Max)
-        
+
         local percentage = (CurrentValue - Min) / (Max - Min)
-        
+
         -- Atualizar visual
         Tween(sliderFill, 0.15, {Size = UDim2.new(percentage, 0, 1, 0)})
         Tween(handle, 0.15, {Position = UDim2.new(percentage, 0, 0.5, -6)})
         valueLabel.Text = tostring(math.floor(CurrentValue + 0.5))
-        
+
         -- Callback
         if Callback then
             Callback(CurrentValue)
         end
-        
+
         return CurrentValue
     end
-    
+
     -- Função para pegar valor
     function SliderObject:GetValue()
         return CurrentValue
     end
-    
+
     -- Lógica de arrastar
     local dragging = false
-    
+
     local function updateFromInput(input)
         local barPos = sliderBar.AbsolutePosition.X
         local barSize = sliderBar.AbsoluteSize.X
         local mousePos = input.Position.X
-        
+
         local relativePos = math.clamp(mousePos - barPos, 0, barSize)
         local percentage = relativePos / barSize
-        
+
         local newValue = Min + (percentage * (Max - Min))
         SliderObject:SetValue(newValue)
     end
-    
+
     sliderBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            updateFromInput(input)
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateFromInput(input)
-        end
-    end)
-    
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-    
+        -- Lógica de arrastar (Versão compatível com Mobile)
+local dragging = false
+
+local function updateFromInput(input)
+    local barPos = sliderBar.AbsolutePosition.X
+    local barSize = sliderBar.AbsoluteSize.X
+    -- Funciona para Mouse e Touch
+    local mousePos = input.Position.X
+
+    local relativePos = math.clamp(mousePos - barPos, 0, barSize)
+    local percentage = relativePos / barSize
+
+    local newValue = Min + (percentage * (Max - Min))
+    SliderObject:SetValue(newValue)
+end
+
+-- Detecta quando clica ou encosta o dedo
+sliderBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        updateFromInput(input)
+    end
+end)
+
+-- Detecta quando move o mouse ou o dedo
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        updateFromInput(input)
+    end
+end)
+
+-- Detecta quando solta
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
     -- Setar valor inicial
     SliderObject:SetValue(Default)
-    
+
     return SliderObject
+end
+
+function Tab:AddDropdown(text, list, callback)
+    local Dropdown = {
+        Open = false,
+        Options = list or {}
+    }
+
+    -- Frame Principal (Container que expande)
+    local dropdownFrame = Instance.new("Frame")
+    dropdownFrame.Parent = container -- Seu ScrollingFrame da Tab
+    dropdownFrame.Size = UDim2.new(1, 0, 0, 35) -- Altura fechado
+    dropdownFrame.BackgroundColor3 = Theme.Button
+    dropdownFrame.ClipsDescendants = true
+    Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0, 6)
+
+    -- Botão Principal (Onde clica para abrir)
+    local mainBtn = Instance.new("TextButton")
+    mainBtn.Size = UDim2.new(1, 0, 0, 35)
+    mainBtn.BackgroundTransparency = 1
+    mainBtn.Text = ""
+    mainBtn.Parent = dropdownFrame
+
+    local label = Instance.new("TextLabel")
+    label.Parent = mainBtn
+    label.Size = UDim2.new(1, -40, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.Text = text .. " : ..."
+    label.TextColor3 = Theme.TextDark
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.BackgroundTransparency = 1
+
+    local arrow = Instance.new("ImageLabel")
+    arrow.Parent = mainBtn
+    arrow.Size = UDim2.new(0, 16, 0, 16)
+    arrow.Position = UDim2.new(1, -25, 0.5, -8)
+    arrow.Image = "rbxassetid://6034818372" -- Ícone de seta
+    arrow.BackgroundTransparency = 1
+    arrow.ImageColor3 = Theme.TextDark
+
+    -- Container das Opções
+    local optionContainer = Instance.new("Frame")
+    optionContainer.Name = "Options"
+    optionContainer.Parent = dropdownFrame
+    optionContainer.Position = UDim2.new(0, 5, 0, 35)
+    optionContainer.Size = UDim2.new(1, -10, 0, 0) -- Altura vai ser calculada
+    optionContainer.BackgroundTransparency = 1
+
+    local layout = Instance.new("UIListLayout", optionContainer)
+    layout.Padding = UDim.new(0, 3)
+
+    -- Função para criar botões das opções
+    local function createOption(name)
+        local optBtn = Instance.new("TextButton")
+        optBtn.Size = UDim2.new(1, 0, 0, 30)
+        optBtn.BackgroundColor3 = Theme.Secondary
+        optBtn.Text = name
+        optBtn.TextColor3 = Theme.TextDark
+        optBtn.Font = Enum.Font.Gotham
+        optBtn.TextSize = 12
+        optBtn.Parent = optionContainer
+        optBtn.AutoButtonColor = false
+        Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 4)
+
+        optBtn.MouseButton1Click:Connect(function()
+            label.Text = text .. " : " .. name
+            Dropdown.Open = false
+            TweenService:Create(dropdownFrame, TweenInfo.new(0.3), {Size = UDim2.new(1, 0, 0, 35)}):Play()
+            TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = 0}):Play()
+            if callback then callback(name) end
+        end)
+    end
+
+    -- Popular opções iniciais
+    for _, v in pairs(Dropdown.Options) do
+        createOption(v)
+    end
+
+    -- Evento de abrir/fechar
+    mainBtn.MouseButton1Click:Connect(function()
+        Dropdown.Open = not Dropdown.Open
+        
+        -- Calcula o tamanho necessário (35 do topo + tamanho da lista)
+        local listSize = layout.AbsoluteContentSize.Y + 10
+        local targetSize = Dropdown.Open and UDim2.new(1, 0, 0, 35 + listSize) or UDim2.new(1, 0, 0, 35)
+        
+        TweenService:Create(dropdownFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
+        TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = Dropdown.Open and 180 or 0}):Play()
+        
+        -- Aumenta o ZIndex enquanto aberto para não ficar atrás de outros elementos
+        dropdownFrame.ZIndex = Dropdown.Open and 10 or 1
+    end)
+
+    return Dropdown
 end
 
         return Tab
