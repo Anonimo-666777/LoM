@@ -45,7 +45,7 @@ MainTab:AddToggle("Name", false, function(state)
 end)
 ```
 
-## 🔛Slider
+## 🎚Slider
 
 ```lua
 local Slider = Tab1:AddSlider({
@@ -60,6 +60,8 @@ local Slider = Tab1:AddSlider({
     end
 })
 ```
+
+## 📃DropDown
 
 ## 🔔Notification
 
