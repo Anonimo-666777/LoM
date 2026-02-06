@@ -21,7 +21,7 @@ local Theme = {
     ButtonHover = Color3.fromRGB(55, 55, 55)
 }
 
--- Variável para guardar o frame principal (necessário para o ToggleButton funcionar)
+-- Variável Global para o ToggleButton funcionar
 local globalMainFrame = nil
 
 -- Função auxiliar para animações
@@ -97,9 +97,7 @@ function Library:AddNotification(config)
     task.delay(Tempo, function()
         local TweenOut = TweenService:Create(NotifFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
         TweenOut:Play()
-        TweenOut.Completed:Connect(function()
-            NotifFrame:Destroy()
-        end)
+        TweenOut.Completed:Connect(function() NotifFrame:Destroy() end)
     end)
 end
 
@@ -117,7 +115,6 @@ function Library:CreateToggleButton(imageId)
     button.Image = imageId or ""
     button.AutoButtonColor = false
     button.BorderSizePixel = 0
-
     Instance.new("UICorner", button).CornerRadius = UDim.new(1, 0)
     Instance.new("UIStroke", button).Color = Theme.Accent
 
@@ -129,6 +126,7 @@ function Library:CreateToggleButton(imageId)
         end
     end)
 
+    -- Drag do Botão de Toggle
     local dragging, dragStart, startPos
     button.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -137,29 +135,19 @@ function Library:CreateToggleButton(imageId)
             startPos = button.Position
         end
     end)
-
     UserInputService.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
-            button.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
+            button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-
     UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
     end)
 end
 
 function Library:CreateWindow(title)
     local Window = {}
-
     local gui = Instance.new("ScreenGui")
     gui.Name = "LibraryOfMysterious"
     gui.ResetOnSpawn = false
@@ -175,14 +163,14 @@ function Library:CreateWindow(title)
     mainFrame.BorderSizePixel = 0
     globalMainFrame = mainFrame
 
-    local sizeConstraint = Instance.new("UISizeConstraint", mainFrame)
-    sizeConstraint.MinSize = Vector2.new(320, 280)
-    sizeConstraint.MaxSize = Vector2.new(600, 500)
-
     Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
     local stroke = Instance.new("UIStroke", mainFrame)
     stroke.Color = Theme.Secondary
     stroke.Thickness = 1.5
+
+    local sizeConstraint = Instance.new("UISizeConstraint", mainFrame)
+    sizeConstraint.MinSize = Vector2.new(320, 280)
+    sizeConstraint.MaxSize = Vector2.new(600, 500)
 
     local titleBar = Instance.new("Frame")
     titleBar.Name = "TitleBar"
@@ -201,15 +189,24 @@ function Library:CreateWindow(title)
     titleLabel.TextSize = 14
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    local tabBar = Instance.new("Frame")
+    -- Barra de Tabs (Com Scroll Lateral)
+    local tabBar = Instance.new("ScrollingFrame")
+    tabBar.Name = "TabBar"
     tabBar.Parent = mainFrame
     tabBar.Position = UDim2.new(0, 10, 0, 40)
-    tabBar.Size = UDim2.new(1, -20, 0, 32)
+    tabBar.Size = UDim2.new(1, -20, 0, 35)
     tabBar.BackgroundTransparency = 1
+    tabBar.BorderSizePixel = 0
+    tabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
+    tabBar.AutomaticCanvasSize = Enum.AutomaticSize.X
+    tabBar.ScrollingDirection = Enum.ScrollingDirection.X
+    tabBar.ScrollBarThickness = 2
+    tabBar.ScrollBarImageColor3 = Theme.Accent
 
     local tabLayout = Instance.new("UIListLayout", tabBar)
     tabLayout.FillDirection = Enum.FillDirection.Horizontal
     tabLayout.Padding = UDim.new(0, 6)
+    tabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
     local tabContainer = Instance.new("Frame")
     tabContainer.Parent = mainFrame
@@ -217,6 +214,7 @@ function Library:CreateWindow(title)
     tabContainer.Size = UDim2.new(1, -20, 1, -90)
     tabContainer.BackgroundTransparency = 1
 
+    -- Drag da Window
     local dragging, dragStart, startPos
     titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -237,10 +235,9 @@ function Library:CreateWindow(title)
 
     function Window:AddTab(name)
         local Tab = {}
-
         local tabButton = Instance.new("TextButton")
         tabButton.Parent = tabBar
-        tabButton.Size = UDim2.new(0, 100, 1, 0)
+        tabButton.Size = UDim2.new(0, 100, 1, -4)
         tabButton.BackgroundColor3 = Theme.Button
         tabButton.Text = name
         tabButton.TextColor3 = Theme.TextDark
@@ -258,7 +255,6 @@ function Library:CreateWindow(title)
         container.ScrollBarImageColor3 = Theme.Accent
         container.Visible = false
         container.BackgroundTransparency = 1
-
         local layout = Instance.new("UIListLayout", container)
         layout.Padding = UDim.new(0, 8)
 
@@ -335,7 +331,6 @@ function Library:CreateWindow(title)
             button.Font = Enum.Font.GothamMedium
             button.TextSize = 13
             Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
-
             button.MouseButton1Click:Connect(function()
                 Tween(button, 0.1, {BackgroundColor3 = Theme.ButtonHover})
                 task.delay(0.1, function() Tween(button, 0.1, {BackgroundColor3 = Theme.Button}) end)
@@ -345,7 +340,6 @@ function Library:CreateWindow(title)
 
         function Tab:AddSlider(config)
             local Title = config.Title or "Slider"
-            local Description = config.Description or ""
             local Default = config.Default or 0
             local Min = config.Min or 0
             local Max = config.Max or 100
@@ -355,7 +349,7 @@ function Library:CreateWindow(title)
 
             local sliderFrame = Instance.new("Frame")
             sliderFrame.Parent = container
-            sliderFrame.Size = UDim2.new(1, 0, 0, Description ~= "" and 70 or 55)
+            sliderFrame.Size = UDim2.new(1, 0, 0, 55)
             sliderFrame.BackgroundColor3 = Theme.Button
             Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 6)
 
@@ -384,7 +378,7 @@ function Library:CreateWindow(title)
             local sliderBar = Instance.new("Frame")
             sliderBar.Parent = sliderFrame
             sliderBar.Size = UDim2.new(1, -24, 0, 4)
-            sliderBar.Position = UDim2.new(0, 12, 0, Description ~= "" and 43 or 28)
+            sliderBar.Position = UDim2.new(0, 12, 0, 32)
             sliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             Instance.new("UICorner", sliderBar).CornerRadius = UDim.new(0, 2)
 
