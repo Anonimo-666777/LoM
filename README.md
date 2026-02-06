@@ -84,6 +84,19 @@ end)
 Tab:AddSection("Name")
 ```
 
+## 🔜KeyBind
+
+```lua
+Tab:AddKeybind("Name", Enum.KeyCode.G, function(teclaPressionada)
+    print("O usuário definiu uma nova tecla: " .. teclaPressionada.Name)
+    Library:AddNotification({
+        Title = "Keybind Atualizado",
+        Description = "nova tecla: " .. teclaPressionada.Name,
+        Time = 3
+    })
+end)
+```
+
 ## 🔔Notification
 
 ```lua
