@@ -1,4 +1,4 @@
--- Library of Mysterious v0.5 alpha 2
+-- Library of Mysterious v0.5 alpha 3
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -160,6 +160,7 @@ function Library:CreateToggleButton(imageId)
         opened = not opened
         mainFrame.Visible = opened
     end)
+end    
 
     -- Drag
     local dragging, dragStart, startPos
@@ -384,7 +385,7 @@ function Tab:AddButton(text, callback)
     end)
 end
 
--- SLIDER (ADICIONAR AQUI) 
+-- SLIDER (ADICIONAR AQUI) 
 function Tab:AddSlider(config)
     local Title = config.Title or "Slider"
     local Description = config.Description or ""
@@ -642,14 +643,14 @@ function Tab:AddDropdown(text, list, callback)
     -- Evento de abrir/fechar
     mainBtn.MouseButton1Click:Connect(function()
         Dropdown.Open = not Dropdown.Open
-        
+
         -- Calcula o tamanho necessário (35 do topo + tamanho da lista)
         local listSize = layout.AbsoluteContentSize.Y + 10
         local targetSize = Dropdown.Open and UDim2.new(1, 0, 0, 35 + listSize) or UDim2.new(1, 0, 0, 35)
-        
+
         TweenService:Create(dropdownFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
         TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = Dropdown.Open and 180 or 0}):Play()
-        
+
         -- Aumenta o ZIndex enquanto aberto para não ficar atrás de outros elementos
         dropdownFrame.ZIndex = Dropdown.Open and 10 or 1
     end)
