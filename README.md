@@ -69,6 +69,15 @@ Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(es
 end)
 ```
 
+## 🎨Color Picker 
+
+```lua
+MinhaTab:AddColorPicker("Name", Color3.fromRGB(0, 162, 255), function(corSelecionada)
+    print("A cor mudou para:", corSelecionada)
+    -- game.Workspace.baseplate.Color = corSelecionada
+end)
+```
+
 ## 🔔Notification
 
 ```lua
