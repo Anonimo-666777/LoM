@@ -1,4 +1,4 @@
--- Library of Mysterious v0.7
+-- Library of Mysterious v0.7.1 (FINAL FIX)
 -- Desenvolvido por David
 
 local Library = {}
@@ -8,8 +8,8 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
--- TABELA DE TEMAS (Corrigida)
 local Theme = {
     Main = Color3.fromRGB(25, 25, 25),
     Secondary = Color3.fromRGB(35, 35, 35),
@@ -19,11 +19,8 @@ local Theme = {
     Button = Color3.fromRGB(40, 40, 40),
 }
 
-local ThemeObjects = {
-    Accent = {},
-}
+local ThemeObjects = { Accent = {} }
 
--- FUNÇÃO TWEEN CENTRALIZADA
 local function Tween(obj, time, goal)
     local info = TweenInfo.new(time, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     local tween = TweenService:Create(obj, info, goal)
@@ -40,7 +37,7 @@ function Library:SetThemeColor(color)
             end
         elseif obj:IsA("UIStroke") then
             Tween(obj, 0.3, {Color = color})
-        elseif obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+        elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
             if obj.Name == "ValueLabel" or obj.Name == "KeyLabel" or obj.Name == "SectionLabel" then
                 Tween(obj, 0.3, {TextColor3 = color})
             end
@@ -55,7 +52,6 @@ function Library:CreateWindow(title)
     gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     local mainFrame = Instance.new("Frame")
-    mainFrame.Name = "MainFrame"
     mainFrame.Size = UDim2.fromOffset(450, 320)
     mainFrame.Position = UDim2.fromScale(0.5, 0.5)
     mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -83,6 +79,8 @@ function Library:CreateWindow(title)
     tabBar.Position = UDim2.new(0, 10, 0, 40)
     tabBar.BackgroundTransparency = 1
     tabBar.ScrollBarThickness = 0
+    tabBar.CanvasSize = UDim2.new(0,0,0,0)
+    tabBar.AutomaticCanvasSize = Enum.AutomaticSize.X
     tabBar.Parent = mainFrame
     local tabLayout = Instance.new("UIListLayout", tabBar)
     tabLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -97,13 +95,14 @@ function Library:CreateWindow(title)
     local Window = {}
 
     function Window:AddTab(name)
+        local Tab = {}
         local tabButton = Instance.new("TextButton")
         tabButton.Name = "TabButton"
         tabButton.Size = UDim2.new(0, 100, 1, 0)
         tabButton.BackgroundColor3 = Theme.Button
         tabButton.Text = name
         tabButton.TextColor3 = Theme.TextDark
-        tabButton.Font = Enum.Font.GothamMedium
+        tabButton.Font = Enum.Font.GothamBold
         tabButton.Parent = tabBar
         Instance.new("UICorner", tabButton)
         table.insert(ThemeObjects.Accent, tabButton)
@@ -116,110 +115,72 @@ function Library:CreateWindow(title)
         container.ScrollBarImageColor3 = Theme.Accent
         container.Parent = tabContainer
         local layout = Instance.new("UIListLayout", container)
-        layout.Padding = UDim.new(0, 5)
+        layout.Padding = UDim.new(0, 7)
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
         layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+            container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
         end)
 
         local function SelectTab()
-            for _, c in pairs(tabContainer:GetChildren()) do c.Visible = false end
-            for _, b in pairs(tabBar:GetChildren()) do 
-                if b:IsA("TextButton") then Tween(b, 0.2, {BackgroundColor3 = Theme.Button}) end 
-            end
-            container.Visible = true
-            Tween(tabButton, 0.2, {BackgroundColor3 = Theme.Accent})
-        end
-        tabButton.MouseButton1Click:Connect(SelectTab)
-        if #tabContainer:GetChildren() == 1 then SelectTab() end
-
-        local Tab = {}
-
-            function Window:AddTab(name)
-        local Tab = {}
-        
-        -- O Botão na barra superior
-        local tabButton = Instance.new("TextButton")
-        tabButton.Name = "TabButton"
-        tabButton.Parent = tabBar
-        tabButton.Size = UDim2.new(0, 100, 1, 0)
-        tabButton.BackgroundColor3 = Theme.Button
-        tabButton.Text = name
-        tabButton.TextColor3 = Theme.TextDark
-        tabButton.Font = Enum.Font.GothamBold
-        tabButton.TextSize = 12
-        Instance.new("UICorner", tabButton)
-
-        -- O Container que guarda os botões desta Tab
-        local container = Instance.new("ScrollingFrame")
-        container.Name = name .. "Container"
-        container.Parent = tabContainer -- IMPORTANTE: Deve estar dentro do tabContainer da Window
-        container.Size = UDim2.new(1, 0, 1, 0)
-        container.BackgroundTransparency = 1
-        container.Visible = false -- Começa invisível
-        container.ScrollBarThickness = 2
-        container.ScrollBarImageColor3 = Theme.Accent
-        container.BorderSizePixel = 0
-        
-        local layout = Instance.new("UIListLayout", container)
-        layout.Padding = UDim.new(0, 7)
-        layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-        
-        -- Padding para os botões não colarem na borda
-        local padding = Instance.new("UIPadding", container)
-        padding.PaddingLeft = UDim.new(0, 5)
-        padding.PaddingRight = UDim.new(0, 5)
-        padding.PaddingTop = UDim.new(0, 5)
-
-        -- Função para trocar de Tab
-        local function SelectTab()
-            -- Esconde todas as outras
-            for _, child in pairs(tabContainer:GetChildren()) do
-                if child:IsA("ScrollingFrame") then child.Visible = false end
-            end
-            for _, btn in pairs(tabBar:GetChildren()) do
-                if btn:IsA("TextButton") then 
-                    Tween(btn, 0.2, {BackgroundColor3 = Theme.Button})
-                    btn.TextColor3 = Theme.TextDark
-                end
-            end
-            -- Mostra esta
+            for _, c in pairs(tabContainer:GetChildren()) do if c:IsA("ScrollingFrame") then c.Visible = false end end
+            for _, b in pairs(tabBar:GetChildren()) do if b:IsA("TextButton") then Tween(b, 0.2, {BackgroundColor3 = Theme.Button}) b.TextColor3 = Theme.TextDark end end
             container.Visible = true
             Tween(tabButton, 0.2, {BackgroundColor3 = Theme.Accent})
             tabButton.TextColor3 = Theme.Text
         end
-
         tabButton.MouseButton1Click:Connect(SelectTab)
-        
-        -- Se for a primeira tab, já deixa aberta
-        if #tabBar:GetChildren() == 1 then
-            task.spawn(SelectTab)
-        end
+        if #tabBar:GetChildren() == 1 then SelectTab() end
 
-        -- IMPORTANTE: Todas as funções (AddButton, etc) devem usar esse 'container'
         function Tab:AddButton(text, callback)
             local btn = Instance.new("TextButton")
-            btn.Parent = container -- AQUI ESTAVA O ERRO! Tinha que ser este container.
+            btn.Parent = container
             btn.Size = UDim2.new(1, 0, 0, 32)
             btn.BackgroundColor3 = Theme.Button
             btn.Text = text
             btn.TextColor3 = Theme.Text
             btn.Font = Enum.Font.GothamMedium
-            btn.TextSize = 13
             Instance.new("UICorner", btn)
-            
-            btn.MouseButton1Click:Connect(function()
-                Tween(btn, 0.1, {BackgroundColor3 = Theme.Secondary})
-                task.delay(0.1, function() Tween(btn, 0.1, {BackgroundColor3 = Theme.Button}) end)
-                callback()
+            btn.MouseButton1Click:Connect(callback)
+        end
+
+        function Tab:AddToggle(text, default, callback)
+            local state = default or false
+            local tFrame = Instance.new("TextButton")
+            tFrame.Parent = container
+            tFrame.Size = UDim2.new(1, 0, 0, 35)
+            tFrame.BackgroundColor3 = Theme.Button
+            tFrame.Text = ""
+            Instance.new("UICorner", tFrame)
+
+            local label = Instance.new("TextLabel")
+            label.Parent = tFrame
+            label.Size = UDim2.new(1, -50, 1, 0)
+            label.Position = UDim2.new(0, 12, 0, 0)
+            label.Text = text
+            label.TextColor3 = Theme.TextDark
+            label.BackgroundTransparency = 1
+            label.TextXAlignment = Enum.TextXAlignment.Left
+
+            local switch = Instance.new("Frame")
+            switch.Name = "SwitchBg"
+            switch.Parent = tFrame
+            switch.Size = UDim2.new(0, 30, 0, 16)
+            switch.Position = UDim2.new(1, -40, 0.5, -8)
+            switch.BackgroundColor3 = state and Theme.Accent or Color3.fromRGB(60,60,60)
+            Instance.new("UICorner", switch).CornerRadius = UDim.new(1,0)
+            table.insert(ThemeObjects.Accent, switch)
+
+            tFrame.MouseButton1Click:Connect(function()
+                state = not state
+                Tween(switch, 0.2, {BackgroundColor3 = state and Theme.Accent or Color3.fromRGB(60,60,60)})
+                callback(state)
             end)
         end
-        
-                -- SLIDER REVISADO
+
         function Tab:AddSlider(text, min, max, default, callback)
             local sliderFrame = Instance.new("Frame")
-            sliderFrame.Name = "Slider_" .. text
-            sliderFrame.Parent = container -- ONDE A MÁGICA ACONTECE
+            sliderFrame.Parent = container
             sliderFrame.Size = UDim2.new(1, 0, 0, 45)
             sliderFrame.BackgroundColor3 = Theme.Button
             Instance.new("UICorner", sliderFrame)
@@ -232,9 +193,9 @@ function Library:CreateWindow(title)
             label.TextColor3 = Theme.Text
             label.BackgroundTransparency = 1
             label.TextXAlignment = Enum.TextXAlignment.Left
-            label.Font = Enum.Font.Gotham
 
             local valLabel = Instance.new("TextLabel")
+            valLabel.Name = "ValueLabel"
             valLabel.Parent = sliderFrame
             valLabel.Size = UDim2.new(0, 40, 0, 20)
             valLabel.Position = UDim2.new(1, -50, 0, 5)
@@ -260,124 +221,20 @@ function Library:CreateWindow(title)
 
             local dragging = false
             local function update()
-                local mousePos = UserInputService:GetMouseLocation().X
-                local percent = math.clamp((mousePos - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+                local percent = math.clamp((UserInputService:GetMouseLocation().X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
                 local value = math.floor(min + (max - min) * percent)
                 fill.Size = UDim2.new(percent, 0, 1, 0)
                 valLabel.Text = tostring(value)
                 callback(value)
             end
 
-            bar.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
-            end)
-            UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-            end)
-            UserInputService.InputChanged:Connect(function(input)
-                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then update() end
-            end)
+            bar.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end end)
+            UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+            UserInputService.InputChanged:Connect(function(input) if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then update() end end)
         end
 
-        -- DROPDOWN REVISADO
-        function Tab:AddDropdown(text, options, callback)
-            local dropFrame = Instance.new("Frame")
-            dropFrame.Parent = container
-            dropFrame.Size = UDim2.new(1, 0, 0, 32)
-            dropFrame.BackgroundColor3 = Theme.Button
-            dropFrame.ClipsDescendants = true
-            Instance.new("UICorner", dropFrame)
-
-            local btn = Instance.new("TextButton")
-            btn.Parent = dropFrame
-            btn.Size = UDim2.new(1, 0, 0, 32)
-            btn.BackgroundTransparency = 1
-            btn.Text = text .. " : ..."
-            btn.TextColor3 = Theme.Text
-            btn.Font = Enum.Font.GothamMedium
-
-            local optionHolder = Instance.new("Frame")
-            optionHolder.Parent = dropFrame
-            optionHolder.Size = UDim2.new(1, -10, 0, 0)
-            optionHolder.Position = UDim2.new(0, 5, 0, 35)
-            optionHolder.BackgroundTransparency = 1
-            local layout = Instance.new("UIListLayout", optionHolder)
-            layout.Padding = UDim.new(0, 3)
-
-            local open = false
-            btn.MouseButton1Click:Connect(function()
-                open = not open
-                local targetSize = open and (35 + layout.AbsoluteContentSize.Y + 5) or 32
-                Tween(dropFrame, 0.3, {Size = UDim2.new(1, 0, 0, targetSize)})
-            end)
-
-            for _, opt in pairs(options) do
-                local oBtn = Instance.new("TextButton")
-                oBtn.Parent = optionHolder
-                oBtn.Size = UDim2.new(1, 0, 0, 25)
-                oBtn.BackgroundColor3 = Theme.Secondary
-                oBtn.Text = opt
-                oBtn.TextColor3 = Theme.TextDark
-                Instance.new("UICorner", oBtn)
-                oBtn.MouseButton1Click:Connect(function()
-                    btn.Text = text .. " : " .. opt
-                    open = false
-                    Tween(dropFrame, 0.3, {Size = UDim2.new(1, 0, 0, 32)})
-                    callback(opt)
-                end)
-            end
-        end
-
-        -- COLOR PICKER REVISADO
-        function Tab:AddColorPicker(text, default, callback)
-            local cpFrame = Instance.new("Frame")
-            cpFrame.Parent = container
-            cpFrame.Size = UDim2.new(1, 0, 0, 32)
-            cpFrame.BackgroundColor3 = Theme.Button
-            cpFrame.ClipsDescendants = true
-            Instance.new("UICorner", cpFrame)
-
-            local btn = Instance.new("TextButton")
-            btn.Parent = cpFrame
-            btn.Size = UDim2.new(1, 0, 0, 32)
-            btn.BackgroundTransparency = 1
-            btn.Text = "  " .. text
-            btn.TextColor3 = Theme.Text
-            btn.TextXAlignment = Enum.TextXAlignment.Left
-            btn.Font = Enum.Font.GothamMedium
-
-            local preview = Instance.new("Frame")
-            preview.Parent = btn
-            preview.Size = UDim2.new(0, 20, 0, 15)
-            preview.Position = UDim2.new(1, -30, 0.5, -7)
-            preview.BackgroundColor3 = default
-            Instance.new("UICorner", preview)
-
-            local pickerImage = Instance.new("ImageButton")
-            pickerImage.Parent = cpFrame
-            pickerImage.Size = UDim2.new(1, -20, 0, 80)
-            pickerImage.Position = UDim2.new(0, 10, 0, 35)
-            pickerImage.Image = "rbxassetid://4155801252"
-            
-            local open = false
-            btn.MouseButton1Click:Connect(function()
-                open = not open
-                Tween(cpFrame, 0.3, {Size = UDim2.new(1, 0, 0, open and 125 or 32)})
-            end)
-
-            pickerImage.MouseButton1Click:Connect(function()
-                -- Lógica básica de clique (pode ser expandida para movimento)
-                local x = math.clamp((UserInputService:GetMouseLocation().X - pickerImage.AbsolutePosition.X) / pickerImage.AbsoluteSize.X, 0, 1)
-                local color = Color3.fromHSV(x, 1, 1)
-                preview.BackgroundColor3 = color
-                callback(color)
-            end)
-        end
-
-        
         return Tab
     end
-        
     return Window
 end
 
