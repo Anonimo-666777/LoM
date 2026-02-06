@@ -40,8 +40,8 @@ end)
 ## 🎛️Toggle
 
 ```lua
-MainTab:AddToggle("Name", false, function(state)
-    print("Toggle:", state)
+Tab1:AddToggle("Name", false, function()
+    print("substitua pela sua função")
 end)
 ```
 
