@@ -45,6 +45,22 @@ MainTab:AddToggle("Name", false, function(state)
 end)
 ```
 
+## 🔛Slider
+
+```
+local Slider = Tab1:AddSlider({
+    Title = "título",
+    Description = "descrição",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Step = 1,
+    Callback = function(valor)
+  
+    end
+})
+```
+
 ## 🔔Notification
 
 ```lua
