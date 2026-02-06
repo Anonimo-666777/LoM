@@ -100,10 +100,5 @@ end)
 ## 🔔Notification
 
 ```lua
-Library:AddNotification({
-    Title = "Title",
-    Description = "Description",
-    Time = 5,
-    Icon = "rbxassetid://YOUR-ID-HERE"
-})
+Lib:Notify("Bem-vindo!", "Aproveite o script, David.", 5)
 ```
