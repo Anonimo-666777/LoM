@@ -4,6 +4,16 @@ Simple Roblox UI Library made By davidgames3d.
 
 ---
 
+## significado dos emojis
+
+✅ = funcionado 100%
+
+❓ = não se sabe ou não existe mais 
+
+❌ = não funciona ou não existe com 100% de certeza
+
+---
+
 ## 📦 Load✅
 
 ```lua
