@@ -63,6 +63,12 @@ local Slider = Tab1:AddSlider({
 
 ## 📃DropDown
 
+```lua
+Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(escolha)
+    
+end)
+```
+
 ## 🔔Notification
 
 ```lua
