@@ -1,4 +1,4 @@
--- Library of Mysterious v0.5 alpha 3
+-- Library of Mysterious v0.6
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -256,6 +256,10 @@ function Library:CreateWindow(title)
         container.Visible = false
         container.BackgroundTransparency = 1
         local layout = Instance.new("UIListLayout", container)
+        layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+end)
+
         layout.Padding = UDim.new(0, 8)
 
         local function SelectTab()
@@ -500,14 +504,26 @@ function Library:CreateWindow(title)
 
             for _, v in pairs(Dropdown.Options) do createOption(v) end
 
-            mainBtn.MouseButton1Click:Connect(function()
-                Dropdown.Open = not Dropdown.Open
-                local listSize = layout.AbsoluteContentSize.Y + 10
-                local targetSize = Dropdown.Open and UDim2.new(1, 0, 0, 35 + listSize) or UDim2.new(1, 0, 0, 35)
-                TweenService:Create(dropdownFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
-                TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = Dropdown.Open and 180 or 0}):Play()
-                dropdownFrame.ZIndex = Dropdown.Open and 10 or 1
-            end)
+            -- Exemplo para o Dropdown (Aplique lógica similar ao Color Picker)
+mainBtn.MouseButton1Click:Connect(function()
+    Dropdown.Open = not Dropdown.Open
+    
+    -- Se abrir, sobe a camada IMEDIATAMENTE
+    if Dropdown.Open then
+        dropdownFrame.ZIndex = 100
+    else
+        -- Se fechar, espera a animação acabar para baixar a camada
+        task.delay(0.3, function()
+            if not Dropdown.Open then dropdownFrame.ZIndex = 1 end
+        end)
+    end
+
+    local listSize = layout.AbsoluteContentSize.Y + 10
+    local targetSize = Dropdown.Open and UDim2.new(1, 0, 0, 35 + listSize) or UDim2.new(1, 0, 0, 35)
+
+    TweenService:Create(dropdownFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
+    TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = Dropdown.Open and 180 or 0}):Play()
+end)
             return Dropdown
         end
 
@@ -589,11 +605,11 @@ function Library:CreateWindow(title)
                 local h = 1 - (hueCursor.Position.Y.Scale)
                 local s = cursor.Position.X.Scale
                 local v = 1 - cursor.Position.Y.Scale
-                
+
                 svBox.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
                 ColorPicker.Value = Color3.fromHSV(h, s, v)
                 colorDisplay.BackgroundColor3 = ColorPicker.Value
-                
+
                 if callback then callback(ColorPicker.Value) end
             end
 
@@ -633,15 +649,82 @@ function Library:CreateWindow(title)
             end)
 
             -- Abrir/Fechar
-            mainBtn.MouseButton1Click:Connect(function()
-                ColorPicker.Open = not ColorPicker.Open
-                local targetSize = ColorPicker.Open and UDim2.new(1, 0, 0, 170) or UDim2.new(1, 0, 0, 35)
-                TweenService:Create(pickerFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
-                pickerFrame.ZIndex = ColorPicker.Open and 10 or 1
-            end)
+            -- Exemplo para o Dropdown (Aplique lógica similar ao Color Picker)
+mainBtn.MouseButton1Click:Connect(function()
+    Dropdown.Open = not Dropdown.Open
+    
+    -- Se abrir, sobe a camada IMEDIATAMENTE
+    if Dropdown.Open then
+        dropdownFrame.ZIndex = 100
+    else
+        -- Se fechar, espera a animação acabar para baixar a camada
+        task.delay(0.3, function()
+            if not Dropdown.Open then dropdownFrame.ZIndex = 1 end
+        end)
+    end
+
+    local listSize = layout.AbsoluteContentSize.Y + 10
+    local targetSize = Dropdown.Open and UDim2.new(1, 0, 0, 35 + listSize) or UDim2.new(1, 0, 0, 35)
+
+    TweenService:Create(dropdownFrame, TweenInfo.new(0.3), {Size = targetSize}):Play()
+    TweenService:Create(arrow, TweenInfo.new(0.3), {Rotation = Dropdown.Open and 180 or 0}):Play()
+end)
 
             return ColorPicker
         end
+
+function Tab:AddKeybind(text, default, callback)
+    local Keybind = {
+        Value = default or Enum.KeyCode.F,
+        Binding = false
+    }
+
+    local keybindFrame = Instance.new("Frame")
+    keybindFrame.Parent = container
+    keybindFrame.Size = UDim2.new(1, 0, 0, 35)
+    keybindFrame.BackgroundColor3 = Theme.Button
+    Instance.new("UICorner", keybindFrame).CornerRadius = UDim.new(0, 6)
+
+    local label = Instance.new("TextLabel")
+    label.Parent = keybindFrame
+    label.Size = UDim2.new(1, -80, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.Text = text
+    label.TextColor3 = Theme.TextDark
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 13
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.BackgroundTransparency = 1
+
+    local keyLabel = Instance.new("TextButton")
+    keyLabel.Parent = keybindFrame
+    keyLabel.Size = UDim2.new(0, 60, 0, 24)
+    keyLabel.Position = UDim2.new(1, -70, 0.5, -12)
+    keyLabel.BackgroundColor3 = Theme.Secondary
+    keyLabel.Text = Keybind.Value.Name
+    keyLabel.TextColor3 = Theme.Accent
+    keyLabel.Font = Enum.Font.GothamBold
+    keyLabel.TextSize = 12
+    Instance.new("UICorner", keyLabel).CornerRadius = UDim.new(0, 4)
+
+    keyLabel.MouseButton1Click:Connect(function()
+        Keybind.Binding = true
+        keyLabel.Text = "..."
+        keyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+
+    UserInputService.InputBegan:Connect(function(input)
+        if Keybind.Binding and input.UserInputType == Enum.UserInputType.Keyboard then
+            Keybind.Value = input.KeyCode
+            Keybind.Binding = false
+            keyLabel.Text = Keybind.Value.Name
+            keyLabel.TextColor3 = Theme.Accent
+            if callback then callback(Keybind.Value) end
+        end
+    end)
+
+    return Keybind
+end
 
         return Tab
     end
