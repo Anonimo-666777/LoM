@@ -14,7 +14,7 @@ local Library = loadstring(game:HttpGet(
 ## 🖼 window
 
 ```lua
-local Window = Main:CreateWindow("Main")
+local Window = Name:CreateWindow("Nome ou título do Hub ou script")
 ```
 
 ## ⏺Open/Close Window
@@ -26,14 +26,14 @@ Library:CreateToggleButton("rbxassetid://YOUR-ID-HERE")
 ## 📂Tab
 
 ```lua
-local MainTab = Window:AddTab("Main")
+local Tab1 = Window:AddTab("1 Tab")
 ```
 
 ## 🔘Button
 
 ```lua
-MainTab:AddButton("name", function()
-    print("teste de função")
+Tab1:AddButton("Name", function()
+    print("tire o print e bote sua função")
 end)
 ```
 
