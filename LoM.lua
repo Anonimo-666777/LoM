@@ -48,6 +48,81 @@ local function MakeDraggable(gui, dragPart)
     end)
 end
 
+function Library:Notify(title, text, duration)
+    duration = duration or 5
+    
+    -- Criar ou pegar o Container de Notificações
+    local notifyGui = LocalPlayer.PlayerGui:FindFirstChild("MysteriousNotifications")
+    if not notifyGui then
+        notifyGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+        notifyGui.Name = "MysteriousNotifications"
+        
+        local layout = Instance.new("UIListLayout", notifyGui)
+        layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+        layout.Padding = UDim.new(0, 10)
+        
+        local padding = Instance.new("UIPadding", notifyGui)
+        padding.PaddingBottom = UDim.new(0, 20)
+        padding.PaddingRight = UDim.new(0, 20)
+    end
+
+    local nFrame = Instance.new("Frame")
+    nFrame.Size = UDim2.fromOffset(250, 60)
+    nFrame.BackgroundColor3 = Theme.Main
+    nFrame.BackgroundTransparency = 0.1
+    nFrame.Parent = notifyGui
+    Instance.new("UICorner", nFrame)
+    Instance.new("UIStroke", nFrame).Color = Theme.Accent
+
+    local nTitle = Instance.new("TextLabel")
+    nTitle.Size = UDim2.new(1, -20, 0, 25)
+    nTitle.Position = UDim2.new(0, 10, 0, 5)
+    nTitle.Text = title
+    nTitle.TextColor3 = Theme.Accent
+    nTitle.Font = Enum.Font.GothamBold
+    nTitle.TextSize = 14
+    nTitle.BackgroundTransparency = 1
+    nTitle.TextXAlignment = Enum.TextXAlignment.Left
+    nTitle.Parent = nFrame
+
+    local nText = Instance.new("TextLabel")
+    nText.Size = UDim2.new(1, -20, 0, 20)
+    nText.Position = UDim2.new(0, 10, 0, 25)
+    nText.Text = text
+    nText.TextColor3 = Theme.Text
+    nText.Font = Enum.Font.Gotham
+    nText.TextSize = 12
+    nText.BackgroundTransparency = 1
+    nText.TextXAlignment = Enum.TextXAlignment.Left
+    nText.Parent = nFrame
+
+    local barBg = Instance.new("Frame", nFrame)
+    barBg.Size = UDim2.new(1, 0, 0, 2)
+    barBg.Position = UDim2.new(0, 0, 1, -2)
+    barBg.BackgroundColor3 = Theme.Secondary
+    barBg.BorderSizePixel = 0
+
+    local bar = Instance.new("Frame", barBg)
+    bar.Size = UDim2.new(1, 0, 1, 0)
+    bar.BackgroundColor3 = Theme.Accent
+    bar.BorderSizePixel = 0
+
+    -- Animações
+    nFrame.Position = UDim2.new(1.5, 0, 0, 0) -- Começa fora da tela
+    Tween(nFrame, 0.5, {Position = UDim2.new(0, 0, 0, 0)})
+    Tween(bar, duration, {Size = UDim2.new(0, 0, 1, 0)})
+
+    task.delay(duration, function()
+        local t = Tween(nFrame, 0.5, {BackgroundTransparency = 1})
+        Tween(nTitle, 0.5, {TextTransparency = 1})
+        Tween(nText, 0.5, {TextTransparency = 1})
+        Tween(bar, 0.5, {BackgroundTransparency = 1})
+        t.Completed:Wait()
+        nFrame:Destroy()
+    end)
+end
+
 function Library:CreateWindow(title)
     local gui = Instance.new("ScreenGui")
     gui.Name = "MysteriousLib"
