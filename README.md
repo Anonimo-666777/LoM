@@ -77,7 +77,7 @@ game.Workspace.Baseplate.BrickColor = BrickColor.new(:", corSelecionada)
 end)
 ```
 
-## 〰️Section
+## 〰️Section❌
 
 ```lua
 Tab:AddSection("Name")
