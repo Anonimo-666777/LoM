@@ -182,6 +182,112 @@ function Library:CreateWindow(title)
             end)
         end
         
+                function Tab:AddDropdown(text, options, callback)
+            local Dropdown = {Open = false}
+            local dropFrame = Instance.new("Frame")
+            dropFrame.Size = UDim2.new(1, 0, 0, 32)
+            dropFrame.BackgroundColor3 = Theme.Button
+            dropFrame.ClipsDescendants = true
+            dropFrame.Parent = container
+            Instance.new("UICorner", dropFrame)
+
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, 32)
+            btn.BackgroundTransparency = 1
+            btn.Text = text .. " : ..."
+            btn.TextColor3 = Theme.Text
+            btn.Font = Enum.Font.GothamMedium
+            btn.Parent = dropFrame
+
+            local optionHolder = Instance.new("Frame")
+            optionHolder.Size = UDim2.new(1, -10, 0, 0)
+            optionHolder.Position = UDim2.new(0, 5, 0, 35)
+            optionHolder.BackgroundTransparency = 1
+            optionHolder.Parent = dropFrame
+            local layout = Instance.new("UIListLayout", optionHolder)
+            layout.Padding = UDim.new(0, 3)
+
+            local function updateSize()
+                local target = Dropdown.Open and (35 + layout.AbsoluteContentSize.Y + 5) or 32
+                Tween(dropFrame, 0.3, {Size = UDim2.new(1, 0, 0, target)})
+                dropFrame.ZIndex = Dropdown.Open and 10 or 1
+            end
+
+            for _, optName in pairs(options) do
+                local optBtn = Instance.new("TextButton")
+                optBtn.Size = UDim2.new(1, 0, 0, 25)
+                optBtn.BackgroundColor3 = Theme.Secondary
+                optBtn.Text = optName
+                optBtn.TextColor3 = Theme.TextDark
+                optBtn.Font = Enum.Font.Gotham
+                optBtn.Parent = optionHolder
+                Instance.new("UICorner", optBtn)
+
+                optBtn.MouseButton1Click:Connect(function()
+                    btn.Text = text .. " : " .. optName
+                    Dropdown.Open = false
+                    updateSize()
+                    callback(optName)
+                end)
+            end
+
+            btn.MouseButton1Click:Connect(function()
+                Dropdown.Open = not Dropdown.Open
+                updateSize()
+            end)
+        end
+        
+                function Tab:AddColorPicker(text, default, callback)
+            local Picker = {Open = false, Color = default or Color3.fromRGB(255,255,255)}
+            local cpFrame = Instance.new("Frame")
+            cpFrame.Size = UDim2.new(1, 0, 0, 32)
+            cpFrame.BackgroundColor3 = Theme.Button
+            cpFrame.ClipsDescendants = true
+            cpFrame.Parent = container
+            Instance.new("UICorner", cpFrame)
+
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, 32)
+            btn.BackgroundTransparency = 1
+            btn.Text = "  " .. text
+            btn.TextColor3 = Theme.Text
+            btn.TextXAlignment = Enum.TextXAlignment.Left
+            btn.Font = Enum.Font.GothamMedium
+            btn.Parent = cpFrame
+
+            local preview = Instance.new("Frame")
+            preview.Size = UDim2.new(0, 20, 0, 12)
+            preview.Position = UDim2.new(1, -30, 0.5, -6)
+            preview.BackgroundColor3 = Picker.Color
+            preview.Parent = btn
+            Instance.new("UICorner", preview).CornerRadius = UDim.new(0, 3)
+
+            local pickerArea = Instance.new("ImageLabel")
+            pickerArea.Size = UDim2.new(1, -20, 0, 100)
+            pickerArea.Position = UDim2.new(0, 10, 0, 35)
+            pickerArea.Image = "rbxassetid://4155801252" -- Saturation/Value map
+            pickerArea.BackgroundColor3 = Color3.fromHSV(0, 1, 1)
+            pickerArea.Parent = cpFrame
+            
+            -- Lógica simplificada de clique no Picker
+            pickerArea.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    local pc = math.clamp((input.Position.X - pickerArea.AbsolutePosition.X) / pickerArea.AbsoluteSize.X, 0, 1)
+                    local pv = 1 - math.clamp((input.Position.Y - pickerArea.AbsolutePosition.Y) / pickerArea.AbsoluteSize.Y, 0, 1)
+                    Picker.Color = Color3.fromHSV(0, pc, pv) -- Simplificado para teste
+                    preview.BackgroundColor3 = Picker.Color
+                    callback(Picker.Color)
+                end
+            end)
+
+            btn.MouseButton1Click:Connect(function()
+                Picker.Open = not Picker.Open
+                local target = Picker.Open and 145 or 32
+                Tween(cpFrame, 0.3, {Size = UDim2.new(1, 0, 0, target)})
+                cpFrame.ZIndex = Picker.Open and 10 or 1
+            end)
+        end
+        
         -- ADICIONE AS OUTRAS FUNÇÕES (AddSlider, AddTextBox) SEGUINDO ESTE PADRÃO
         
         return Tab
