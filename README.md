@@ -14,7 +14,7 @@ local Library = loadstring(game:HttpGet(
 ## 🖼 window
 
 ```lua
-local Window = Library:CreateWindow("Title")
+local Window = Main:CreateWindow("Main")
 ```
 
 ## ⏺Open/Close Window
