@@ -28,7 +28,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anoni
 local Window = Library:CreateWindow("Title")
 ```
 
-## ⏺Open/Close Window❓
+## ⏺Open/Close Window✅
 
 ```lua
 Library:CreateToggleButton("rbxassetid://YOUR-ID-HERE")
