@@ -48,7 +48,7 @@ MainTab:AddButton("name", function()
 end)
 ```
 
-## 🎛️Toggle❓
+## 🎛️Toggle✅
 
 ```lua
 Tab1:AddToggle("Name", false, function()
@@ -56,7 +56,7 @@ Tab1:AddToggle("Name", false, function()
 end)
 ```
 
-## 🎚Slider❌
+## 🎚Slider✅
 
 ```lua
 local Slider = Tab1:AddSlider({
@@ -72,7 +72,7 @@ local Slider = Tab1:AddSlider({
 })
 ```
 
-## 📃DropDown❌
+## 📃DropDown❓
 
 ```lua
 Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(escolha)
@@ -80,7 +80,7 @@ Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(es
 end)
 ```
 
-## 🎨Color Picker ❌
+## 🎨Color Picker ❓
 
 ```lua
 MinhaTab:AddColorPicker("Name", Color3.fromRGB(0, 162, 255), function(corSelecionada)
@@ -89,13 +89,7 @@ game.Workspace.Baseplate.BrickColor = BrickColor.new(:", corSelecionada)
 end)
 ```
 
-## 〰️Section❌
-
-```lua
-Tab:AddSection("Name")
-```
-
-## 🔜KeyBind❌
+## 🔜KeyBind❓
 
 ```lua
 Tab:AddKeybind("Name", Enum.KeyCode.G, function(teclaPressionada)
@@ -108,7 +102,7 @@ Tab:AddKeybind("Name", Enum.KeyCode.G, function(teclaPressionada)
 end)
 ```
 
-## 🔔Notification❌
+## 🔔Notification✅
 
 ```lua
 Library:AddNotification({
