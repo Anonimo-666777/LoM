@@ -1,4 +1,4 @@
--- Library of Mysterious v0.6
+-- Library of Mysterious v0.7
 -- Desenvolvido por David
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -233,52 +233,66 @@ function Library:CreateWindow(title)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
     end)
 
-    function Window:AddTab(name)
-        local Tab = {}
-        local tabButton = Instance.new("TextButton")
-        tabButton.Parent = tabBar
-        tabButton.Size = UDim2.new(0, 100, 1, -4)
-        tabButton.BackgroundColor3 = Theme.Button
-        tabButton.Text = name
-        tabButton.TextColor3 = Theme.TextDark
-        tabButton.Font = Enum.Font.GothamMedium
-        tabButton.TextSize = 13
-        tabButton.AutoButtonColor = false
-        Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 6)
+function Window:AddTab(name)
+    local Tab = {}
+    local tabButton = Instance.new("TextButton")
+    tabButton.Parent = tabBar
+    tabButton.Size = UDim2.new(0, 100, 1, -4)
+    tabButton.BackgroundColor3 = Theme.Button
+    tabButton.Text = name
+    tabButton.TextColor3 = Theme.TextDark
+    tabButton.Font = Enum.Font.GothamMedium
+    tabButton.TextSize = 13
+    tabButton.AutoButtonColor = false
+    Instance.new("UICorner", tabButton).CornerRadius = UDim.new(0, 6)
 
-        local container = Instance.new("ScrollingFrame")
-        container.Parent = tabContainer
-        container.Size = UDim2.new(1, 0, 1, 0)
-        container.CanvasSize = UDim2.new(0, 0, 0, 0)
-        container.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        container.ScrollBarThickness = 2
-        container.ScrollBarImageColor3 = Theme.Accent
-        container.Visible = false
-        container.BackgroundTransparency = 1
-        local layout = Instance.new("UIListLayout", container)
-        layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
-end)
+    local container = Instance.new("ScrollingFrame")
+    container.Name = name -- ADICIONADO: Nome para identificação
+    container.Parent = tabContainer
+    container.Size = UDim2.new(1, 0, 1, 0)
+    container.CanvasSize = UDim2.new(0, 0, 0, 0)
+    container.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    container.ScrollBarThickness = 2
+    container.ScrollBarImageColor3 = Theme.Accent
+    container.Visible = false
+    container.BackgroundTransparency = 1
+    local layout = Instance.new("UIListLayout", container)
+    layout.Padding = UDim.new(0, 8)
+    
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+    end)
 
-        layout.Padding = UDim.new(0, 8)
-
-        local function SelectTab()
-            for _, t in pairs(tabContainer:GetChildren()) do
-                if t:IsA("ScrollingFrame") then t.Visible = false end
+    local function SelectTab()
+        -- Esconde TODOS os containers de tabs
+        for _, child in pairs(tabContainer:GetChildren()) do
+            if child:IsA("ScrollingFrame") then
+                child.Visible = false
             end
-            container.Visible = true
-            for _, b in pairs(tabBar:GetChildren()) do
-                if b:IsA("TextButton") then
-                    Tween(b, 0.2, {BackgroundColor3 = Theme.Button})
-                    b.TextColor3 = Theme.TextDark
-                end
-            end
-            Tween(tabButton, 0.2, {BackgroundColor3 = Theme.Accent})
-            tabButton.TextColor3 = Theme.Text
         end
+        -- Mostra o container atual
+        container.Visible = true
+        
+        -- Remove seleção visual de TODOS os botões
+        for _, btn in pairs(tabBar:GetChildren()) do
+            if btn:IsA("TextButton") then
+                Tween(btn, 0.2, {BackgroundColor3 = Theme.Button})
+                btn.TextColor3 = Theme.TextDark
+            end
+        end
+        -- Seleciona o botão atual
+        Tween(tabButton, 0.2, {BackgroundColor3 = Theme.Accent})
+        tabButton.TextColor3 = Theme.Text
+    end
 
-        tabButton.MouseButton1Click:Connect(SelectTab)
-        if #tabContainer:GetChildren() == 1 then SelectTab() end
+    tabButton.MouseButton1Click:Connect(SelectTab)
+    
+    -- CORRIGIDO: Se é a PRIMEIRA tab, seleciona automaticamente
+    local tabCount = 0
+    for _ in pairs(tabContainer:GetChildren()) do tabCount = tabCount + 1 end
+    if tabCount == 1 then 
+        SelectTab() 
+    end
 
         function Tab:AddToggle(text, default, callback)
             local state = default or false
