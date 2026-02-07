@@ -10,7 +10,7 @@ Simple Roblox UI Library made By davidgames3d.
 
 ✅ = funcionado 100%
 
-❓ = não se sabe ou não existe mais 
+❓ = não se sabe ou não existe mais ou está com leve falhas/bugs
 
 ❌ = não funciona ou não existe com 100% de certeza
 
