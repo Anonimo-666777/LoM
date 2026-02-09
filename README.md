@@ -90,7 +90,7 @@ local Slider = Tab1:AddSlider({
 })
 ```
 
-## 📃DropDown❓
+## 📃DropDown✅
 
 ```lua
 Tab1:AddDropdown("Título", {"opção 1", "opção 2", "opção 3"}, function(escolha)
@@ -107,7 +107,7 @@ game.Workspace.Baseplate.BrickColor = BrickColor.new(:", corSelecionada)
 end)
 ```
 
-## 🔜KeyBind❓
+## 🔜KeyBind✅
 
 ```lua
 Tab:AddKeybind("Name", Enum.KeyCode.G, function(teclaPressionada)
