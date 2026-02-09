@@ -22,6 +22,14 @@ Simple Roblox UI Library made By davidgames3d.
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Anonimo-666777/LoM/main/LoM.lua"))()
 ```
 
+```lua
+Library:ShowIntro({
+    Name = "Título",
+    Icon = "rbxassetid://seu-id-aqui",
+    Duration = 4
+})
+```
+
 ## 🖼 window✅
 
 ```lua
