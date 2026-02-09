@@ -10,6 +10,76 @@ local Mouse = LocalPlayer:GetMouse()
 local Library = {}
 Library.__index = Library
 
+function Library:ShowIntro(config)
+    -- Configurações padrões (caso o usuário não passe nada)
+    local options = {
+        Icon = config.Icon or "rbxassetid://6031070534", -- Ícone padrão
+        Name = config.Name or "Minha Library",
+        Color = config.Color or Color3.fromRGB(255, 255, 255),
+        Duration = config.Duration or 3,
+        Theme = config.Theme or "Fade" -- Ex: "Fade", "Slide", "Zoom"
+    }
+
+    -- 1. Criar a Estrutura da UI (ScreenGui, Frame, ImageLabel, TextLabel)
+    local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+    ScreenGui.Name = "LibIntro"
+    ScreenGui.IgnoreGuiInset = true -- Faz a intro cobrir a tela toda
+    
+    local MainFrame = Instance.new("Frame", ScreenGui)
+    MainFrame.Size = UDim2.new(1, 0, 1, 0)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Fundo escuro
+    MainFrame.BackgroundTransparency = 1 -- Começa invisível para o Tween
+
+    local Content = Instance.new("Frame", MainFrame) -- Container central
+    Content.Size = UDim2.new(0, 300, 0, 300)
+    Content.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Content.AnchorPoint = Vector2.new(0.5, 0.5)
+    Content.BackgroundTransparency = 1
+
+    -- Adicionando o Ícone
+    local Logo = Instance.new("ImageLabel", Content)
+    Logo.Size = UDim2.new(0, 100, 0, 100)
+    Logo.Position = UDim2.new(0.5, 0, 0.4, 0)
+    Logo.AnchorPoint = Vector2.new(0.5, 0.5)
+    Logo.Image = options.Icon
+    Logo.ImageColor3 = options.Color
+    Logo.BackgroundTransparency = 1
+    Logo.ImageTransparency = 1
+
+    -- Adicionando o Nome
+    local Title = Instance.new("TextLabel", Content)
+    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.Position = UDim2.new(0.5, 0, 0.65, 0)
+    Title.AnchorPoint = Vector2.new(0.5, 0.5)
+    Title.Text = options.Name
+    Title.TextColor3 = options.Color
+    Title.TextSize = 24
+    Title.Font = Enum.Font.GothamBold
+    Title.BackgroundTransparency = 1
+    Title.TextTransparency = 1
+
+    -- 2. Lógica de Animação (O "Tempero")
+    local function fadeIn()
+        TweenService:Create(MainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(Logo, TweenInfo.new(1), {ImageTransparency = 0}):Play()
+        TweenService:Create(Title, TweenInfo.new(1), {TextTransparency = 0}):Play()
+    end
+
+    local function fadeOut()
+        TweenService:Create(MainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Logo, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+        TweenService:Create(Title, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        task.wait(0.5)
+        ScreenGui:Destroy()
+    end
+
+    -- Execução
+    fadeIn()
+    task.wait(options.Duration)
+    fadeOut()
+end
+
 -- Tabela de Cores (Centralizada)
 local Theme = {
     Main = Color3.fromRGB(20, 20, 20),
